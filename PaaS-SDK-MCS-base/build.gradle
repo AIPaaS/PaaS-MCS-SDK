@@ -1,0 +1,52 @@
+dependencies{
+	compile 'redis.clients:jedis:3.0.0'
+	compile 'org.apache.commons:commons-pool2:2.3'
+	compile 'org.apache.logging.log4j:log4j-api:2.2'
+}
+
+publishing {
+	publications {
+		publishing.publications.create("${moduleName}", MavenPublication) {
+			groupId group
+			artifactId moduleName
+			version moduleVersion
+			artifact  jar
+			pom.withXml {
+				asNode().children().last() + {
+					delegate.dependencies {
+						delegate.dependency {
+							delegate.groupId("com.ai")
+							delegate.artifactId("ipaas-common")
+							delegate.version("0.1")
+						}
+						delegate.dependency {
+							delegate.groupId("redis.clients")
+							delegate.artifactId("jedis")
+							delegate.version("3.0.0")
+						}
+						delegate.dependency {
+							delegate.groupId("org.apache.commons")
+							delegate.artifactId("commons-pool2")
+							delegate.version("2.3")
+						}
+						delegate.dependency {
+							delegate.groupId("org.apache.logging.log4j")
+							delegate.artifactId("log4j-api")
+							delegate.version("2.2")
+						}
+					}
+				}
+			}
+		}
+	}
+	repositories {
+		maven {
+			url  publishURL
+			credentials {
+				username = publishUserName
+				password = publishUserPassword
+			}
+		}
+	}
+}
+

@@ -1,0 +1,3 @@
+include "PaaS-SDK-MCS-base"
+include "PaaS-SDK-MCS-IC-Auth"
+include "PaaS-SDK-MCS-EX-Auth"
