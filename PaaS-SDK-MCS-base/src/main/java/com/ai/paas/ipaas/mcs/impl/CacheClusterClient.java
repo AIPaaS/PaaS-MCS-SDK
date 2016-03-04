@@ -23,12 +23,18 @@ public class CacheClusterClient implements ICacheClient{
 	private final String preKey = CacheHelper.preKey();
 	private String pwd;
 	private JedisCluster jc;
-	
-	public CacheClusterClient(GenericObjectPoolConfig config,String[] hosts,String pwd) {
+	private boolean isRedisNeedAuth = false;
+
+	public CacheClusterClient(GenericObjectPoolConfig config, String[] hosts){
 		this.config = config;
 		this.hosts = hosts;
+	}
+	
+	public CacheClusterClient(GenericObjectPoolConfig config,String[] hosts,String pwd) {
+		this(config, hosts);
 		this.pwd = pwd;
 		getCluster();
+		isRedisNeedAuth = true;
 	}
 	
 	private void getCluster() {

@@ -1,6 +1,5 @@
 package com.ai.paas.ipaas.mcs;
 
-import com.ai.paas.ipaas.mcs.exception.CacheClientException;
 import com.ai.paas.ipaas.mcs.impl.CacheClient;
 import com.ai.paas.ipaas.mcs.impl.CacheClusterClient;
 import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
@@ -28,17 +27,13 @@ public class CacheFactory {
         genericObjectPoolConfig.setTestOnBorrow(Boolean.parseBoolean(config.getProperty("mcs.testOnBorrow", "true")));
 
         String host = config.getProperty("mcs.host", "127.0.0.1:6379");
-        String password = config.getProperty("mcs.password");
-        if (password == null || password.length() == 0) {
-            throw new CacheClientException("mcs.password cannot be null");
-        }
 
         String[] hostArray = host.split(";");
         ICacheClient cacheClient = null;
         if (hostArray.length > 1) {
-            cacheClient = new CacheClusterClient(genericObjectPoolConfig, hostArray, password);
+            cacheClient = new CacheClusterClient(genericObjectPoolConfig, hostArray);
         } else {
-            cacheClient = new CacheClient(genericObjectPoolConfig, host, password);
+            cacheClient = new CacheClient(genericObjectPoolConfig, host);
         }
         cacheClients.put(host, cacheClient);
         return cacheClient;
