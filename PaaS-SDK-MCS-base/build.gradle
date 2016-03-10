@@ -17,7 +17,7 @@ publishing {
 						delegate.dependency {
 							delegate.groupId("com.ai")
 							delegate.artifactId("ipaas-common")
-							delegate.version("0.1")
+							delegate.version("0.1-SNAPSHOT")
 						}
 						delegate.dependency {
 							delegate.groupId("redis.clients")
