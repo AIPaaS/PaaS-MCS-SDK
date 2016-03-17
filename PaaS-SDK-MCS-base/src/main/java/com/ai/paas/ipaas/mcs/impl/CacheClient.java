@@ -29,10 +29,12 @@ public class CacheClient implements ICacheClient {
     public CacheClient(GenericObjectPoolConfig config, String host){
         this.config = config;
         this.host = host;
+        createPool();
     }
 
     public CacheClient(GenericObjectPoolConfig config, String host, String pwd) {
-        this(config, host);
+        this.config = config;
+        this.host = host;
         this.pwd = pwd;
         createPool();
         isRedisNeedAuth = true;
