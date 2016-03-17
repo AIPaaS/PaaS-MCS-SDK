@@ -1,5 +1,5 @@
 dependencies{
-	compile 'redis.clients:jedis:3.0.0'
+	compile 'redis.clients:jedis:2.8.0'
 	compile 'org.apache.commons:commons-pool2:2.3'
 	compile 'org.apache.logging.log4j:log4j-api:2.2'
 }
@@ -22,7 +22,7 @@ publishing {
 						delegate.dependency {
 							delegate.groupId("redis.clients")
 							delegate.artifactId("jedis")
-							delegate.version("3.0.0")
+							delegate.version("2.8.0")
 						}
 						delegate.dependency {
 							delegate.groupId("org.apache.commons")
