@@ -9,11 +9,13 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.LoggerFactory;
 
 import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.exceptions.JedisClusterException;
 
 import com.ai.paas.ipaas.mcs.exception.CacheClientException;
 import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 public class CacheClusterClient implements ICacheClient{
 	
@@ -1274,6 +1276,26 @@ public class CacheClusterClient implements ICacheClient{
 			throw new CacheClientException(jcException);
 		} catch (Exception e) {
 			log.error(e.getMessage(),e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+
+	@Override
+	public Double hincrByFloat(String key, String field, double value) {
+		Jedis jedis = null;
+		try {
+			return jc.hincrByFloat(key, field, value);
+		} catch (JedisConnectionException jedisConnectionException) {
+			getCluster();
+			if (canConnection()) {
+				return hincrByFloat(key,field, value);
+			} else {
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
 		} finally {
 		}
