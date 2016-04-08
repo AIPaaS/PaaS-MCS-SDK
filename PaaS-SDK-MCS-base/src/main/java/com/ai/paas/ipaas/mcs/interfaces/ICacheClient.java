@@ -823,4 +823,7 @@ public interface ICacheClient {
 	 */
 	Long sdiffstore(byte[] dstkey, byte[]... keys);
 
+
+	Long hincrBy(String key, String field, long value);
+
 }

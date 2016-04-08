@@ -1262,6 +1262,24 @@ public class CacheClusterClient implements ICacheClient{
 	}
 
 	@Override
+	public Long hincrBy(String key, String field, long value) {
+		try {
+			return jc.hincrBy(key, field, value);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return hincrBy(key, field, value);
+			}
+			log.error(jcException.getMessage(), jcException);
+			throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(),e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+
+	@Override
 	public Long lrem(String key, long count, String value) {
 		try {
 			return jc.lrem(key, count, value);

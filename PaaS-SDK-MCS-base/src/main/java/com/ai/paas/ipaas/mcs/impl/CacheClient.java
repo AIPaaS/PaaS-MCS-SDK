@@ -26,7 +26,7 @@ public class CacheClient implements ICacheClient {
     private String pwd;
     private boolean isRedisNeedAuth = false;
 
-    public CacheClient(GenericObjectPoolConfig config, String host){
+    public CacheClient(GenericObjectPoolConfig config, String host) {
         this.config = config;
         this.host = host;
         createPool();
@@ -49,7 +49,7 @@ public class CacheClient implements ICacheClient {
                     config.setMaxWaitMillis(15000);
                 if (isRedisNeedAuth) {
                     pool = new JedisPool(config, hostArr[0], Integer.parseInt(hostArr[1]), TIMEOUT_KEY, pwd);
-                }else{
+                } else {
                     pool = new JedisPool(config, hostArr[0], Integer.parseInt(hostArr[1]));
                 }
                 if (canConnection())
@@ -171,6 +171,28 @@ public class CacheClient implements ICacheClient {
         try {
             jedis = getJedis();
             return jedis.del(key);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return del(key);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheClientException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CacheClientException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    public Long hincrBy(String key, String field, long value) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.hincrBy(key, field, value);
         } catch (JedisConnectionException jedisConnectionException) {
             createPool();
             if (canConnection()) {
