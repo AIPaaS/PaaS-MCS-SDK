@@ -79,18 +79,23 @@ public class CacheFactory {
 		log.info("Get pwd&host ...");
 		String pwd = null;
 		String host = (String) personalConfMap.get(REDIS_HOST);
-		String[] hostArray = host.split(";");
-		log.info("Get RedisClient ...");
-		if (hostArray.length > 1) {
-			pwd = (String) personalConfMap.get(REDIS_PASSWORD);
-			cacheClient = new CacheClusterClient(config, hostArray, pwd);
-		} else {
-			pwd = CiperUtil.decrypt(CACHE_KEY,
-					(String) personalConfMap.get(REDIS_PASSWORD));
-			cacheClient = new CacheClient(config, host, pwd);
+		//为了适应新添加的sentinel模式，对下列实例化方法进行更改，sentinel模式下的数据如：
+		if(host!=null)
+		{
+			String[] hostArray = host.split(";");
+			log.info("Get RedisClient ...");
+			if (hostArray.length > 1) {
+				pwd = (String) personalConfMap.get(REDIS_PASSWORD);
+				cacheClient = new CacheClusterClient(config, hostArray, pwd);
+			} else {
+				pwd = CiperUtil.decrypt(CACHE_KEY,
+						(String) personalConfMap.get(REDIS_PASSWORD));
+				cacheClient = new CacheClient(config, host, pwd);
+			}
+			log.info("Get RedisClient ...");
+			cacheClients.put(instanceKey, cacheClient);
 		}
-		log.info("Get RedisClient ...");
-		cacheClients.put(instanceKey, cacheClient);
+		
 		return cacheClient;
 	}
 }
