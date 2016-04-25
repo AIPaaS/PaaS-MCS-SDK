@@ -11,8 +11,8 @@ import com.ai.paas.ipaas.uac.vo.AuthDescriptor;
 
 public class CacheTest {
 	
-//	private static final String AUTH_ADDR = "http://10.1.228.198:14821/iPaas-Auth/service/check";
-	private static final String AUTH_ADDR = "http://10.1.31.20:19821/iPaas-Auth/service/check";
+	private static final String AUTH_ADDR = "http://10.1.228.198:14821/iPaas-Auth/service/auth";
+//	private static final String AUTH_ADDR = "http://10.1.31.20:19821/iPaas-Auth/service/check";
 		
 	private static AuthDescriptor ad = null;
 	private static ICacheClient ic = null;
@@ -22,7 +22,7 @@ public class CacheTest {
 	
 	
 	static{
-		ad =  new AuthDescriptor(AUTH_ADDR, "zhangzy5@asiainfo.com", "833609","MCS004");
+		ad =  new AuthDescriptor(AUTH_ADDR, "FFF49D0D518948D0AB28D7A8EEE25D03", "123456","106");
 		try {
 			ic = CacheFactory.getClient(ad);
 		} catch (Exception e) {
