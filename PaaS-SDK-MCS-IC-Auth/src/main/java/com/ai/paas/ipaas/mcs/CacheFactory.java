@@ -1,9 +1,16 @@
 package com.ai.paas.ipaas.mcs;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.slf4j.LoggerFactory;
+
 import com.ai.paas.ipaas.ccs.inner.CCSComponentFactory;
 import com.ai.paas.ipaas.mcs.impl.CacheClient;
 import com.ai.paas.ipaas.mcs.impl.CacheClusterClient;
 import com.ai.paas.ipaas.mcs.impl.CacheHelper;
+import com.ai.paas.ipaas.mcs.impl.CacheSentinelClient;
 import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
 import com.ai.paas.ipaas.uac.service.UserClientFactory;
 import com.ai.paas.ipaas.uac.vo.AuthDescriptor;
@@ -11,11 +18,6 @@ import com.ai.paas.ipaas.uac.vo.AuthResult;
 import com.ai.paas.ipaas.util.Assert;
 import com.ai.paas.ipaas.util.CiperUtil;
 import com.google.gson.Gson;
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class CacheFactory {
 
@@ -23,6 +25,7 @@ public class CacheFactory {
 	private final static String CACHE_COMMON_PATH = "/MCS/COMMON";
 	private final static String REDIS_PASSWORD = "password";
 	private final static String REDIS_HOST = "hosts";
+	private final static String REDIS_SENTINEL = "sentinel";
 	private final static String CACHE_KEY = "BaryTukyTukyBary";
 	private static Map<String, ICacheClient> cacheClients = new ConcurrentHashMap<String, ICacheClient>();
 	private static transient final org.slf4j.Logger log = LoggerFactory
@@ -91,11 +94,14 @@ public class CacheFactory {
 				pwd = CiperUtil.decrypt(CACHE_KEY,
 						(String) personalConfMap.get(REDIS_PASSWORD));
 				cacheClient = new CacheClient(config, host, pwd);
-			}
-			log.info("Get RedisClient ...");
-			cacheClients.put(instanceKey, cacheClient);
+			}		
+		}else{
+			String sentinels=(String) personalConfMap.get(REDIS_SENTINEL);
+			pwd = (String) personalConfMap.get(REDIS_PASSWORD);
+			cacheClient=new CacheSentinelClient(config,sentinels,pwd);
 		}
-		
+		log.info("Get RedisClient ...");
+		cacheClients.put(instanceKey, cacheClient);
 		return cacheClient;
 	}
 }
