@@ -22,7 +22,7 @@ public class CacheTest {
 	
 	
 	static{
-		ad =  new AuthDescriptor(AUTH_ADDR, "FFF49D0D518948D0AB28D7A8EEE25D03", "123456","106");
+		ad =  new AuthDescriptor(AUTH_ADDR, "FFF49D0D518948D0AB28D7A8EEE25D03", "Bjwqt7!@#","601");
 		try {
 			ic = CacheFactory.getClient(ad);
 		} catch (Exception e) {

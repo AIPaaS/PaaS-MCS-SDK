@@ -36,8 +36,8 @@ public class CacheClient implements ICacheClient {
         this.config = config;
         this.host = host;
         this.pwd = pwd;
-        createPool();
         isRedisNeedAuth = true;
+        createPool();
     }
 
     private synchronized void createPool() {
