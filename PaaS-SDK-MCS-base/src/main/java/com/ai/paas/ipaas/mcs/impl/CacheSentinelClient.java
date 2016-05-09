@@ -1,21 +1,15 @@
 package com.ai.paas.ipaas.mcs.impl;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.ai.paas.ipaas.mcs.exception.CacheClientException;
+import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+import com.ai.paas.ipaas.util.CiperUtil;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.LoggerFactory;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
-import com.ai.paas.ipaas.mcs.exception.CacheClientException;
-import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
-import com.ai.paas.ipaas.util.CiperUtil;
+import java.util.*;
 
 public class CacheSentinelClient implements ICacheClient {
 
@@ -48,12 +42,12 @@ public class CacheSentinelClient implements ICacheClient {
             try {
                 if (config.getMaxWaitMillis() < 15000)
                     config.setMaxWaitMillis(15000);
-                
+
                 Set<String> sentinels = new HashSet<String>(Arrays.asList(host.split(";")));
-              //TODO
-                String password=CiperUtil.decrypt("BaryTukyTukyBary",pwd);
+                //TODO
+                String password = CiperUtil.decrypt("BaryTukyTukyBary", pwd);
                 //String password="593802";
-                pool=new JedisSentinelPool("mymaster", sentinels,config,TIMEOUT_KEY,password);
+                pool = new JedisSentinelPool("mymaster", sentinels, config, TIMEOUT_KEY, password);
                 if (canConnection())
                     log.info("Redis Server Info:" + host);
                 log.info("Create JedisPool Done ...");
@@ -198,7 +192,7 @@ public class CacheSentinelClient implements ICacheClient {
         } catch (JedisConnectionException jedisConnectionException) {
             createPool();
             if (canConnection()) {
-                return hincrBy(key,field, value);
+                return hincrBy(key, field, value);
             } else {
                 log.error(jedisConnectionException.getMessage(), jedisConnectionException);
                 throw new CacheClientException(jedisConnectionException);
@@ -217,11 +211,11 @@ public class CacheSentinelClient implements ICacheClient {
         Jedis jedis = null;
         try {
             jedis = getJedis();
-            return jedis.incrByFloat(key,  value);
+            return jedis.incrByFloat(key, value);
         } catch (JedisConnectionException jedisConnectionException) {
             createPool();
             if (canConnection()) {
-                return incrByFloat(key,value);
+                return incrByFloat(key, value);
             } else {
                 log.error(jedisConnectionException.getMessage(), jedisConnectionException);
                 throw new CacheClientException(jedisConnectionException);
@@ -244,7 +238,7 @@ public class CacheSentinelClient implements ICacheClient {
         } catch (JedisConnectionException jedisConnectionException) {
             createPool();
             if (canConnection()) {
-                return hincrByFloat(key,field, value);
+                return hincrByFloat(key, field, value);
             } else {
                 log.error(jedisConnectionException.getMessage(), jedisConnectionException);
                 throw new CacheClientException(jedisConnectionException);
@@ -1428,6 +1422,34 @@ public class CacheSentinelClient implements ICacheClient {
             if (jedis != null)
                 returnResource(jedis);
         }
+    }
+
+    @Override
+    public Long setnx(byte[] key, byte[] value) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.setnx(key, value);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return jedis.setnx(key, value);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheClientException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CacheClientException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Long setnx(String key, String value) {
+        return setnx(key.getBytes(), value.getBytes());
     }
 
     public String hmset(byte[] key, Map<byte[], byte[]> hash) {

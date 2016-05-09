@@ -635,6 +635,10 @@ public interface ICacheClient {
      */
     Long hsetnx(byte[] key, byte[] field, byte[] value);
 
+    Long setnx(byte[] key, byte[] value);
+
+    Long setnx(String key, String value);
+
     /**
      * map 将hash集合 追加到 key指定的哈希集中。
      *

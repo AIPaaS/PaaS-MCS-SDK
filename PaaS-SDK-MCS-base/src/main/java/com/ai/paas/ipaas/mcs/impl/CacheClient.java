@@ -1446,6 +1446,34 @@ public class CacheClient implements ICacheClient {
         }
     }
 
+    @Override
+    public Long setnx(byte[] key, byte[] value) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.setnx(key,  value);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return jedis.setnx(key, value);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheClientException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CacheClientException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Long setnx(String key, String value) {
+        return setnx(key.getBytes(), value.getBytes());
+    }
+
     public String hmset(byte[] key, Map<byte[], byte[]> hash) {
         Jedis jedis = null;
         try {

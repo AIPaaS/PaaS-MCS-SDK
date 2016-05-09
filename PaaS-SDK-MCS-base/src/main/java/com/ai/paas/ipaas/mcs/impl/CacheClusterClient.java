@@ -1048,6 +1048,29 @@ public class CacheClusterClient implements ICacheClient {
         }
     }
 
+    @Override
+    public Long setnx(byte[] key, byte[] value) {
+        try {
+            return jc.setnx(key, value);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return jc.setnx(key, value);
+            }
+            log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CacheClientException(e);
+        } finally {
+        }
+    }
+
+    @Override
+    public Long setnx(String key, String value) {
+        return setnx(key.getBytes(), value.getBytes());
+    }
+
     public String hmset(byte[] key, Map<byte[], byte[]> hash) {
         try {
             return jc.hmset(key, hash);
@@ -1312,7 +1335,7 @@ public class CacheClusterClient implements ICacheClient {
         } catch (JedisConnectionException jedisConnectionException) {
             getCluster();
             if (canConnection()) {
-                return incrByFloat(key,value);
+                return incrByFloat(key, value);
             } else {
                 log.error(jedisConnectionException.getMessage(), jedisConnectionException);
                 throw new CacheClientException(jedisConnectionException);
