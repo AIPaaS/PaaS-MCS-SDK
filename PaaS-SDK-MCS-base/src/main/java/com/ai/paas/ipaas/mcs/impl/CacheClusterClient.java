@@ -1305,6 +1305,26 @@ public class CacheClusterClient implements ICacheClient {
     }
 
     @Override
+    public Double incrByFloat(String key, double value) {
+        Jedis jedis = null;
+        try {
+            return jc.incrByFloat(key, value);
+        } catch (JedisConnectionException jedisConnectionException) {
+            getCluster();
+            if (canConnection()) {
+                return incrByFloat(key,value);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheClientException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CacheClientException(e);
+        } finally {
+        }
+    }
+
+    @Override
     public Double hincrByFloat(String key, String field, double value) {
         Jedis jedis = null;
         try {

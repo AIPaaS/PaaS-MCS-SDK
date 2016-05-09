@@ -774,6 +774,10 @@ public interface ICacheClient {
 
     Long hincrBy(String key, String field, long value);
 
+
+    Double incrByFloat(final String key, final double value);
+
+
     Double hincrByFloat(final String key, final String field, final double value);
 
 }
