@@ -65,6 +65,16 @@ public interface ICacheClient {
     Long expire(String key, int seconds);
 
     /**
+     * 设置key的过期时间。如果key已过期，将会被自动删除。
+     *
+     * @param key     cache中存储数据的key
+     * @param seconds 过期的秒数
+     * @return 被设置key的数量
+     * @
+     */
+    Long expireAt(String key, int seconds);
+
+    /**
      * 以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)。
      *
      * @param key cache中存储数据的key
@@ -437,6 +447,16 @@ public interface ICacheClient {
      * @
      */
     Long expire(byte[] key, int seconds);
+
+    /**
+     * 设置key的过期时间。如果key已过期，将会被自动删除。
+     *
+     * @param key     cache中存储数据的key
+     * @param seconds 过期的秒数
+     * @return 被设置key的数量
+     * @
+     */
+    Long expireAt(byte[] key, int seconds);
 
     /**
      * 以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)。
