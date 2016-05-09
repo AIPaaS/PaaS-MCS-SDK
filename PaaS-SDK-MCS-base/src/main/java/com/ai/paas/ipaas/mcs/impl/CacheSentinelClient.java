@@ -213,6 +213,29 @@ public class CacheSentinelClient implements ICacheClient {
     }
 
     @Override
+    public Double incrByFloat(String key, double value) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.incrByFloat(key,  value);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return incrByFloat(key,value);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheClientException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CacheClientException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
     public Double hincrByFloat(String key, String field, double value) {
         Jedis jedis = null;
         try {
@@ -277,6 +300,11 @@ public class CacheSentinelClient implements ICacheClient {
             if (jedis != null)
                 returnResource(jedis);
         }
+    }
+
+    @Override
+    public Long expireAt(String key, int seconds) {
+        return expireAt(key.getBytes(), seconds);
     }
 
     public Long ttl(String key) {
@@ -1036,6 +1064,29 @@ public class CacheSentinelClient implements ICacheClient {
             createPool();
             if (canConnection()) {
                 return expire(key, seconds);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheClientException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CacheClientException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Long expireAt(byte[] key, int seconds) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.expireAt(key, seconds);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return expireAt(key, seconds);
             } else {
                 log.error(jedisConnectionException.getMessage(), jedisConnectionException);
                 throw new CacheClientException(jedisConnectionException);
