@@ -176,7 +176,7 @@ public class CacheClusterClient implements ICacheClient {
     }
 
     @Override
-    public Long expireAt(String key, int seconds) {
+    public Long expireAt(String key, long seconds) {
         return expireAt(key.getBytes(), seconds);
     }
 
@@ -776,7 +776,7 @@ public class CacheClusterClient implements ICacheClient {
     }
 
     @Override
-    public Long expireAt(byte[] key, int seconds) {
+    public Long expireAt(byte[] key, long seconds) {
         try {
             return jc.expireAt(key, seconds);
         } catch (JedisClusterException jcException) {

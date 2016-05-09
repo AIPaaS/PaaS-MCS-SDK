@@ -301,7 +301,7 @@ public class CacheClient implements ICacheClient {
     }
 
     @Override
-    public Long expireAt(String key, int seconds) {
+    public Long expireAt(String key, long seconds) {
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -1094,7 +1094,7 @@ public class CacheClient implements ICacheClient {
     }
 
     @Override
-    public Long expireAt(byte[] key, int seconds) {
+    public Long expireAt(byte[] key, long seconds) {
         Jedis jedis = null;
         try {
             jedis = getJedis();

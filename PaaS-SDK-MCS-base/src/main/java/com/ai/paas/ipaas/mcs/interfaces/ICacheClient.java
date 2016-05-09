@@ -72,7 +72,7 @@ public interface ICacheClient {
      * @return 被设置key的数量
      * @
      */
-    Long expireAt(String key, int seconds);
+    Long expireAt(String key, long seconds);
 
     /**
      * 以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)。
@@ -456,7 +456,7 @@ public interface ICacheClient {
      * @return 被设置key的数量
      * @
      */
-    Long expireAt(byte[] key, int seconds);
+    Long expireAt(byte[] key, long seconds);
 
     /**
      * 以秒为单位，返回给定 key 的剩余生存时间(TTL, time to live)。

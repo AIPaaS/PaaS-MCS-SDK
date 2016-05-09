@@ -303,7 +303,7 @@ public class CacheSentinelClient implements ICacheClient {
     }
 
     @Override
-    public Long expireAt(String key, int seconds) {
+    public Long expireAt(String key, long seconds) {
         return expireAt(key.getBytes(), seconds);
     }
 
@@ -1078,7 +1078,7 @@ public class CacheSentinelClient implements ICacheClient {
     }
 
     @Override
-    public Long expireAt(byte[] key, int seconds) {
+    public Long expireAt(byte[] key, long seconds) {
         Jedis jedis = null;
         try {
             jedis = getJedis();
