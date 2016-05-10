@@ -1,3 +1,16 @@
 .idea
 PaaS-SDK-MCS.iml
 /build/
+/.project
+/.classpath
+/.settings
+/.gradle
+/sdk-mcs-srv/.project
+/sdk-mcs-srv/.classpath
+/sdk-mcs-srv/.settings
+/sdk-mcs-comp/.project
+/sdk-mcs-comp/.classpath
+/sdk-mcs-comp/.settings
+/sdk-mcs-base/.project
+/sdk-mcs-base/.classpath
+/sdk-mcs-base/.settings
