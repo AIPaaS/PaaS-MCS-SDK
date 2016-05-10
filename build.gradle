@@ -4,12 +4,13 @@ allprojects{
     apply plugin: 'maven-publish'
 
     ext {
-        //moduleName="ipaas-config-sdk";
-        moduleVersion="1.0-SNAPSHOT"
+		//moduleMode="-SNAPSHOT";
+		moduleMode="";
+        moduleVersion="0.3"+moduleMode;
         publishUserName = "devadm"
         publishUserPassword = "Devadm@1212"
-        //publishURL="http://10.1.228.199:18081/nexus/content/repositories/releases/"
-        publishURL="http://10.1.228.199:18081/nexus/content/repositories/snapshots/"
+		publishSnapShotsURL="http://10.1.228.199:18081/nexus/content/repositories/snapshots/"
+		publishReleaseURL="http://10.1.228.199:18081/nexus/content/repositories/releases/"
         builtBy="gradle 2.1"
     }
 
@@ -30,7 +31,7 @@ subprojects{
     }
 
     dependencies{
-        compile 'com.ai:ipaas-common:0.1-SNAPSHOT'
+        compile 'com.ai:ipaas-common:0.3'
         testCompile(
                 "org.springframework:spring-test:4.1.5.RELEASE",
                 "junit:junit:4.11"
@@ -45,9 +46,9 @@ subprojects{
 
 }
 
-project("PaaS-SDK-MCS-base"){
+project("sdk-mcs-base"){
     project.ext {
-        moduleName = "paas-sdk-mcs-base"
+        moduleName = "ipaas-sdk-mcs-base"
     }
 
     jar {
@@ -62,9 +63,9 @@ project("PaaS-SDK-MCS-base"){
     publish.dependsOn build
 }
 
-project("PaaS-SDK-MCS-EX-Auth"){
+project("sdk-mcs-comp"){
     project.ext {
-        moduleName = "paas-sdk-mcs-exclude-auth"
+        moduleName = "ipaas-sdk-mcs-comp"
     }
 
     jar {
@@ -79,9 +80,9 @@ project("PaaS-SDK-MCS-EX-Auth"){
     publish.dependsOn build
 }
 
-project("PaaS-SDK-MCS-IC-Auth"){
+project("sdk-mcs-srv"){
     project.ext {
-        moduleName = "paas-sdk-mcs-include-auth"
+        moduleName = "ipaas-sdk-mcs"
     }
 
     jar {
