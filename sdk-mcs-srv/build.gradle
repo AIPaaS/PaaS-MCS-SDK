@@ -1,0 +1,52 @@
+dependencies {
+    compile project(":sdk-mcs-base")
+    compile 'com.ai:ipaas-uac:0.3'
+    compile 'com.ai:ipaas-ccs-inner:0.3'
+}
+
+
+publishing {
+    publications {
+        publishing.publications.create("${moduleName}", MavenPublication) {
+            groupId group
+            artifactId moduleName
+            version moduleVersion
+            artifact jar
+            pom.withXml {
+                asNode().children().last() + {
+                    delegate.dependencies {
+                        delegate.dependency {
+                            delegate.groupId("com.ai")
+                            delegate.artifactId("ipaas-uac")
+                            delegate.version("0.3")
+                        }
+                        delegate.dependency {
+                            delegate.groupId("com.ai")
+                            delegate.artifactId("ipaas-ccs-inner")
+                            delegate.version("0.3")
+                        }
+                        delegate.dependency {
+                            delegate.groupId("com.ai")
+                            delegate.artifactId("paas-sdk-mcs-base")
+                            delegate.version("0.3")
+                        }
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            if(moduleVersion.endsWith('-SNAPSHOT')) {
+                url publishSnapShotsURL
+            } else {
+                url publishReleaseURL
+            }
+            credentials {
+                username = publishUserName
+                password = publishUserPassword
+            }
+        }
+    }
+}
+

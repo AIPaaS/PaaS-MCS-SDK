@@ -1,0 +1,5 @@
+.idea
+target/
+PaaS-SDK-MCS-base.iml
+/build/
+/bin/
