@@ -1,7 +1,9 @@
 package com.ai.paas.ipaas.mcs.impl;
 
-import com.ai.paas.ipaas.mcs.exception.CacheClientException;
-import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.LoggerFactory;
@@ -9,12 +11,11 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.exceptions.JedisClusterException;
-import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.params.sortedset.ZAddParams;
+import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.ai.paas.ipaas.mcs.exception.CacheClientException;
+import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
 
 public class CacheClusterClient implements ICacheClient {
 
@@ -1333,14 +1334,13 @@ public class CacheClusterClient implements ICacheClient {
     public Double incrByFloat(String key, double value) {
         try {
             return jc.incrByFloat(key, value);
-        } catch (JedisConnectionException jedisConnectionException) {
+        } catch (JedisClusterException jcException) {
             getCluster();
             if (canConnection()) {
                 return incrByFloat(key, value);
-            } else {
-                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
-                throw new CacheClientException(jedisConnectionException);
             }
+            log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new CacheClientException(e);
@@ -1352,14 +1352,13 @@ public class CacheClusterClient implements ICacheClient {
     public Double hincrByFloat(String key, String field, double value) {
         try {
             return jc.hincrByFloat(key, field, value);
-        } catch (JedisConnectionException jedisConnectionException) {
+        } catch (JedisClusterException jcException) {
             getCluster();
             if (canConnection()) {
                 return hincrByFloat(key, field, value);
-            } else {
-                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
-                throw new CacheClientException(jedisConnectionException);
             }
+            log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new CacheClientException(e);
@@ -1402,4 +1401,310 @@ public class CacheClusterClient implements ICacheClient {
         } finally {
         }
     }
+    
+    @Override
+	public Long zadd(String key, double score, String member) {
+		try {
+			return jc.zadd(key, score, member);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zadd(key, score, member);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+	
+	@Override
+	public Long zadd(final String key, final double score, final String member, final ZAddParams params) {
+		try {
+			return jc.zadd(key, score, member, params);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zadd(key, score, member, params);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+    
+	@Override
+	public Long zadd(String key, Map<String, Double> scoreMembers) {
+		try {
+			return jc.zadd(key, scoreMembers);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zadd(key, scoreMembers);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+    
+	@Override
+	public Long zadd(final String key, final Map<String, Double> scoreMembers, final ZAddParams params) {
+		try {
+			return jc.zadd(key, scoreMembers, params);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zadd(key, scoreMembers, params);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+	
+	@Override
+	public Long zcount(final String key, final double min, final double max) {
+		try {
+			return jc.zcount(key, min, max);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zcount(key, min, max);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+    
+	@Override
+	public Long zcount(final String key, final String min, final String max) {
+		try {
+			return jc.zcount(key, min, max);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zcount(key, min, max);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+    }
+	
+	@Override
+	public Double zincrby(final String key, final double score, final String member) {
+		try {
+			return jc.zincrby(key, score, member);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zincrby(key, score, member);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+    
+	@Override
+	public Double zincrby(String key, double score, String member, ZIncrByParams params) {
+		try {
+			return jc.zincrby(key, score, member, params);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zincrby(key, score, member, params);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+    }
+	
+	@Override
+	public Set<String> zrange(final String key, final long start, final long end) {
+		try {
+			return jc.zrange(key, start, end);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrange(key, start, end);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+	
+	@Override
+	public Set<String> zrangeByScore(final String key, final double min, final double max) {
+		try {
+			return jc.zrangeByScore(key, min, max);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrangeByScore(key, min, max);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+
+	@Override
+	public Set<String> zrangeByScore(final String key, final String min, final String max){
+		try {
+			return jc.zrangeByScore(key, min, max);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrangeByScore(key, min, max);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+    }
+
+	@Override
+	public Set<String> zrangeByScore(final String key, final double min, final double max, final int offset, int count) {
+		try {
+			return jc.zrangeByScore(key, min, max, offset, count);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrangeByScore(key, min, max, offset, count);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+    }
+	
+	@Override
+	public Set<String> zrevrange(final String key, final long start, final long end) {
+		try {
+			return jc.zrevrange(key, start, end);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrevrange(key, start, end);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+	
+	@Override
+	public Set<String> zrevrangeByScore(final String key, final double max, final double min) {
+		try {
+			return jc.zrevrangeByScore(key, max, min);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrevrangeByScore(key, max, min);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+
+	@Override
+	public Set<String> zrevrangeByScore(final String key, final String max, final String min) {
+		try {
+			return jc.zrevrangeByScore(key, max, min);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrevrangeByScore(key, max, min);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+    }
+
+	@Override
+	public Set<String> zrevrangeByScore(final String key, final double max, final double min, final int offset, int count) {
+		try {
+			return jc.zrevrangeByScore(key, max, min, offset, count);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrevrangeByScore(key, max, min, offset, count);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+    }
+	
+	@Override
+	public Long zrevrank(final String key, final String member) {
+		try {
+			return jc.zrevrank(key, member);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrevrank(key, member);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
 }

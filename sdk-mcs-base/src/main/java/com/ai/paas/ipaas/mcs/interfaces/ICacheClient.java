@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import redis.clients.jedis.params.sortedset.ZAddParams;
+import redis.clients.jedis.params.sortedset.ZIncrByParams;
+
 public interface ICacheClient {
 
     /**
@@ -798,4 +801,85 @@ public interface ICacheClient {
      */
     Double hincrByFloat(final String key, final String field, final double value);
 
+    /**
+     * 对键值为key的有序集合，添加值为score的member元素。
+     * @param key
+     * @param score
+     * @param member
+     * @return
+     */
+    Long zadd(final String key, final double score, final String member);
+    
+    Long zadd(final String key, final double score, final String member, final ZAddParams params);
+    
+    Long zadd(String key, Map<String, Double> scoreMembers);
+    
+    Long zadd(final String key, final Map<String, Double> scoreMembers, final ZAddParams params);
+    
+    /**
+     * 计算键值为key的有序集合中，指定分数区间在min到max范围内的成员数量。
+     * @param key
+     * @param min
+     * @param max
+     */
+    Long zcount(final String key, final double min, final double max);
+    
+    Long zcount(final String key, final String min, final String max);
+    
+    /**
+     * 对键值为key的有序集合中,指定的member成员的分数，加上score。
+     * @param key
+     * @param score
+     * @param member
+     */
+    Double zincrby(final String key, final double score, final String member);
+    
+    Double zincrby(String key, double score, String member, ZIncrByParams params);
+    
+    /**
+     * 获取键值为key的有序集合中，指定区间内的成员。
+     * @param key
+     * @param start
+     * @param end
+     */
+    Set<String> zrange(final String key, final long start, final long end);
+    
+    /**
+     * 获取键值为key的有序集合中，指定分数区间的成员列表。
+     * @param key
+     * @param min
+     * @param max
+     */
+    Set<String> zrangeByScore(final String key, final double min, final double max);
+
+    Set<String> zrangeByScore(final String key, final String min, final String max);
+
+    Set<String> zrangeByScore(final String key, final double min, final double max, final int offset, int count);
+    
+    /**
+     * 返回键值为key的有序集中，区间在start到end内的成员。
+     * @param key
+     * @param start
+     * @param end
+     */
+    Set<String> zrevrange(final String key, final long start, final long end);
+    
+    /**
+     * 返回键值为key的有序集中，分数区间在max到min内的所有的成员。
+     * @param key
+     * @param max
+     * @param min
+     */
+    Set<String> zrevrangeByScore(final String key, final double max, final double min);
+
+    Set<String> zrevrangeByScore(final String key, final String max, final String min);
+
+    Set<String> zrevrangeByScore(final String key, final double max, final double min, final int offset, int count);
+    
+    /**
+     * 返回有序集中成员的排名。按分数值递减(从大到小)排序。排名以 0 为底, 也就是说, 分数值最大的成员排名为 0 。
+     * @param key
+     * @param member
+     */
+    Long zrevrank(final String key, final String member);
 }

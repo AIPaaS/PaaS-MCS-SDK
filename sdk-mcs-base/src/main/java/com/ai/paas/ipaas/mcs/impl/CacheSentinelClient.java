@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.params.sortedset.ZAddParams;
+import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
 import java.util.*;
 
@@ -1872,6 +1874,414 @@ public class CacheSentinelClient implements ICacheClient {
 			createPool();
 			if (canConnection()) {
 				return lrem(key, count, value);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public Long zadd(String key, double score, String member) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zadd(key, score, member);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zadd(key, score, member);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public Long zadd(final String key, final double score, final String member, final ZAddParams params) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zadd(key, score, member, params);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zadd(key, score, member, params);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+    
+	@Override
+	public Long zadd(String key, Map<String, Double> scoreMembers) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zadd(key, scoreMembers);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zadd(key, scoreMembers);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+    
+	@Override
+	public Long zadd(final String key, final Map<String, Double> scoreMembers, final ZAddParams params) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zadd(key, scoreMembers, params);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zadd(key, scoreMembers, params);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public Long zcount(final String key, final double min, final double max) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zcount(key, min, max);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zcount(key, min, max);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+    
+	@Override
+	public Long zcount(final String key, final String min, final String max) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zcount(key, min, max);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zcount(key, min, max);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+    }
+	
+	@Override
+	public Double zincrby(final String key, final double score, final String member) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zincrby(key, score, member);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zincrby(key, score, member);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+    
+	@Override
+	public Double zincrby(String key, double score, String member, ZIncrByParams params) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zincrby(key, score, member, params);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zincrby(key, score, member, params);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+    }
+	
+	@Override
+	public Set<String> zrange(final String key, final long start, final long end) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrange(key, start, end);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrange(key, start, end);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public Set<String> zrangeByScore(final String key, final double min, final double max) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrangeByScore(key, min, max);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrangeByScore(key, min, max);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+
+	@Override
+	public Set<String> zrangeByScore(final String key, final String min, final String max){
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrangeByScore(key, min, max);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrangeByScore(key, min, max);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+    }
+
+	@Override
+	public Set<String> zrangeByScore(final String key, final double min, final double max, final int offset, int count) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrangeByScore(key, min, max, offset, count);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrangeByScore(key, min, max, offset, count);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+    }
+	
+	@Override
+	public Set<String> zrevrange(final String key, final long start, final long end) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrevrange(key, start, end);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrevrange(key, start, end);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public Set<String> zrevrangeByScore(final String key, final double max, final double min) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrevrangeByScore(key, max, min);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrevrangeByScore(key, max, min);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+
+	@Override
+	public Set<String> zrevrangeByScore(final String key, final String max, final String min) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrevrangeByScore(key, max, min);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrevrangeByScore(key, max, min);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+    }
+
+	@Override
+	public Set<String> zrevrangeByScore(final String key, final double max, final double min, final int offset, int count) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrevrangeByScore(key, max, min, offset, count);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrevrangeByScore(key, max, min, offset, count);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+    }
+	
+	@Override
+	public Long zrevrank(final String key, final String member) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrevrank(key, member);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrevrank(key, member);
 			} else {
 				log.error(jedisConnectionException.getMessage(),
 						jedisConnectionException);
