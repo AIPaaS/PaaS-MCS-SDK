@@ -18,7 +18,7 @@ public class CacheClientTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-		String host = "";
+		String host = "10.1.228.202:36823";
 		client = new CacheClient(config, host);
 	}
 
