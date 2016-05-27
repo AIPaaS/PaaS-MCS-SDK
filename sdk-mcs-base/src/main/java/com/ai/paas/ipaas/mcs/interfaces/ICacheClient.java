@@ -882,4 +882,18 @@ public interface ICacheClient {
      * @param member
      */
     Long zrevrank(final String key, final String member);
+    
+    /**
+     * 删除键值为key的有序集中，指定的member。
+     * @param key
+     * @param member
+     * @return
+     */
+    Long zrem(final String key, final String... members);
+    
+    Long zremrangeByRank(final String key, final long start, final long end);
+
+    Long zremrangeByScore(final String key, final double start, final double end);
+
+    Long zremrangeByScore(final String key, final String start, final String end);
 }

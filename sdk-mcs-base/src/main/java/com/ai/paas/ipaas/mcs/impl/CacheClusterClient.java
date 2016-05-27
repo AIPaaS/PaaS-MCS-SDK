@@ -1707,4 +1707,76 @@ public class CacheClusterClient implements ICacheClient {
 		} finally {
 		}
 	}
+	
+	@Override
+	public Long zrem(final String key, final String... member) {
+		try {
+			return jc.zrem(key, member);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zrem(key, member);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+	
+	@Override
+	public Long zremrangeByRank(final String key, final long start, final long end) {
+		try {
+			return jc.zremrangeByRank(key, start, end);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zremrangeByRank(key, start, end);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+	
+	@Override
+	public Long zremrangeByScore(final String key, final double start, final double end) {
+		try {
+			return jc.zremrangeByScore(key, start, end);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zremrangeByScore(key, start, end);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
+	
+	@Override
+	public Long zremrangeByScore(final String key, final String start, final String end) {
+		try {
+			return jc.zremrangeByScore(key, start, end);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return zremrangeByScore(key, start, end);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+	}
 }

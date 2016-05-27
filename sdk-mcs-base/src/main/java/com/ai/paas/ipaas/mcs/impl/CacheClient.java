@@ -2319,4 +2319,100 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
+	
+	@Override
+	public Long zrem(final String key, final String... member) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zrem(key, member);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zrem(key, member);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public Long zremrangeByRank(final String key, final long start, final long end) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zremrangeByRank(key, start, end);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zremrangeByRank(key, start, end);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public Long zremrangeByScore(final String key, final double start, final double end) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zremrangeByScore(key, start, end);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zremrangeByScore(key, start, end);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public Long zremrangeByScore(final String key, final String start, final String end) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.zremrangeByScore(key, start, end);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return zremrangeByScore(key, start, end);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
 }
