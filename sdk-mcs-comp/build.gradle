@@ -15,7 +15,7 @@ publishing {
 					delegate.dependencies {
 						delegate.dependency {
 							delegate.groupId("com.ai")
-							delegate.artifactId("paas-sdk-mcs-base")
+							delegate.artifactId("paas-mcs-base")
 							delegate.version("0.3")
 						}
 					}

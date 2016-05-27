@@ -48,7 +48,7 @@ subprojects{
 
 project("sdk-mcs-base"){
     project.ext {
-        moduleName = "ipaas-sdk-mcs-base"
+        moduleName = "ipaas-mcs-base"
     }
 
     jar {
@@ -65,7 +65,7 @@ project("sdk-mcs-base"){
 
 project("sdk-mcs-comp"){
     project.ext {
-        moduleName = "ipaas-sdk-mcs-comp"
+        moduleName = "ipaas-mcs-comp"
     }
 
     jar {
@@ -82,7 +82,7 @@ project("sdk-mcs-comp"){
 
 project("sdk-mcs-srv"){
     project.ext {
-        moduleName = "ipaas-sdk-mcs"
+        moduleName = "ipaas-mcs"
     }
 
     jar {
