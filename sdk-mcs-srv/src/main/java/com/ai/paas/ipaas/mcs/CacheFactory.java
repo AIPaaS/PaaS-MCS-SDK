@@ -43,7 +43,7 @@ public class CacheFactory {
 		Assert.notNull(ad.getServiceId(), "service_id为空");
 		Assert.notNull(ad.getPid(), "pid is null");
 		String srvId = ad.getServiceId();
-		
+
 		// 单例标签
 		String instanceKey = ad.getPid() + "_" + ad.getServiceId();
 		if (cacheClients.containsKey(instanceKey)) {
@@ -56,7 +56,7 @@ public class CacheFactory {
 		log.info("Check AuthResult ...");
 		AuthResult authResult = UserClientFactory.getUserClient().auth(ad);
 		// 认证通过后，判断是否存在已有实例，有，直接返回
-		
+
 		// 开始初始化
 		Assert.notNull(authResult.getConfigAddr(), "ConfigAddr为空");
 		Assert.notNull(authResult.getConfigUser(), "ConfigUser为空");
@@ -78,24 +78,24 @@ public class CacheFactory {
 		GenericObjectPoolConfig config = gson.fromJson(cacheConf,
 				GenericObjectPoolConfig.class);
 		Map personalConfMap = gson.fromJson(personalConf, Map.class);
-		log.info("Get pwd&host ..."+personalConfMap);
+		log.info("Get pwd&host ..." + personalConfMap);
 		String pwd = null;
+		pwd = (String) personalConfMap.get(REDIS_PASSWORD);
 		String host = (String) personalConfMap.get(REDIS_HOST);
-		//为了适应新添加的sentinel模式，对下列实例化方法进行更改，sentinel模式下的数据如：
-		pwd = CiperUtil.decrypt(CACHE_KEY,
-				(String) personalConfMap.get(REDIS_PASSWORD));
-		if(host!=null)
-		{
+		// 为了适应新添加的sentinel模式，对下列实例化方法进行更改，sentinel模式下的数据如：
+		if (null != pwd)
+			pwd = CiperUtil.decrypt(CACHE_KEY, pwd);
+		if (host != null) {
 			String[] hostArray = host.split(";");
 			log.info("Get RedisClient ...");
 			if (hostArray.length > 1) {
 				cacheClient = new CacheClusterClient(config, hostArray, pwd);
 			} else {
 				cacheClient = new CacheClient(config, host, pwd);
-			}		
-		}else{
-			String sentinels=(String) personalConfMap.get(REDIS_SENTINEL);
-			cacheClient=new CacheSentinelClient(config,sentinels,pwd);
+			}
+		} else {
+			String sentinels = (String) personalConfMap.get(REDIS_SENTINEL);
+			cacheClient = new CacheSentinelClient(config, sentinels, pwd);
 		}
 		log.info("Get RedisClient ...");
 		cacheClients.put(instanceKey, cacheClient);
