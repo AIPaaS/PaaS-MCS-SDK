@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CacheFactory {
+public class CacheCmpFactory {
 
     private static Map<String, ICacheClient> cacheClients = new ConcurrentHashMap<String, ICacheClient>();
 
-    private CacheFactory() {
+    private CacheCmpFactory() {
         // do nothing
     }
 
@@ -41,7 +41,7 @@ public class CacheFactory {
 
     public static ICacheClient getClient() throws IOException {
         Properties config = new Properties();
-        config.load(CacheFactory.class.getResourceAsStream("/redis.conf"));
+        config.load(CacheCmpFactory.class.getResourceAsStream("/redis.conf"));
         return getClient(config);
     }
 
