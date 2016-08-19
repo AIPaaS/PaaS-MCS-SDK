@@ -2395,4 +2395,14 @@ public class CacheSentinelClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
+	
+	@Override
+	public String acquireLock(String lockName, long acquireTimeoutInMS, long lockTimeoutInMS) {
+		return "";
+	}
+	
+	@Override
+	public boolean releaseLock(String lockName, String identifier) {
+		return false;
+	}
 }

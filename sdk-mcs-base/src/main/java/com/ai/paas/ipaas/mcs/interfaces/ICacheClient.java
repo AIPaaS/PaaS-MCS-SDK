@@ -896,4 +896,21 @@ public interface ICacheClient {
     Long zremrangeByScore(final String key, final double start, final double end);
 
     Long zremrangeByScore(final String key, final String start, final String end);
+    
+    /**
+	 * 获取分布式锁
+	 * @param lockName 竞争获取锁key
+	 * @param acquireTimeoutInMS 获取锁超时时间(ms)
+	 * @param lockTimeoutInMS 锁的超时时间(ms)
+	 * @return 获取锁标识
+	 */
+    String acquireLock(String lockName, long acquireTimeoutInMS, long lockTimeoutInMS);
+    
+    /**
+	 * 释放锁
+	 * @param lockName 竞争获取锁key
+	 * @param identifier 释放锁标识
+	 * @return boolean
+	 */
+    boolean releaseLock(String lockName, String identifier);
 }

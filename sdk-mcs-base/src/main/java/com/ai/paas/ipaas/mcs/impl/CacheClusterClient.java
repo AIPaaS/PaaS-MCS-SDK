@@ -1779,4 +1779,14 @@ public class CacheClusterClient implements ICacheClient {
 		} finally {
 		}
 	}
+	
+	@Override
+	public String acquireLock(String lockName, long acquireTimeoutInMS, long lockTimeoutInMS) {
+		return "";
+	}
+	
+	@Override
+	public boolean releaseLock(String lockName, String identifier) {
+		return false;
+	}
 }
