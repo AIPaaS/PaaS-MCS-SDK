@@ -4,18 +4,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.LoggerFactory;
+
+import com.ai.paas.ipaas.mcs.exception.CacheClientException;
+import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.exceptions.JedisClusterException;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
-
-import com.ai.paas.ipaas.mcs.exception.CacheClientException;
-import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
 
 public class CacheClusterClient implements ICacheClient {
 
@@ -1782,11 +1783,63 @@ public class CacheClusterClient implements ICacheClient {
 	
 	@Override
 	public String acquireLock(String lockName, long acquireTimeoutInMS, long lockTimeoutInMS) {
-		return "";
+		getCluster();
+		String retIdentifier = null;
+		try {
+			String identifier = UUID.randomUUID().toString();
+			String lockKey = "lock:" + lockName;
+			int lockExpire = (int) (lockTimeoutInMS / 1000);
+
+			long end = System.currentTimeMillis() + acquireTimeoutInMS;
+			while (System.currentTimeMillis() < end) {
+				if (jc.setnx(lockKey, identifier) == 1) {
+					jc.expire(lockKey, lockExpire);
+					retIdentifier = identifier;
+				}
+				if (jc.pttl(lockKey) == -1) {
+					jc.expire(lockKey, lockExpire);
+				}
+
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+				}
+			}
+		} catch (JedisClusterException jcException) {
+            log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CacheClientException(e);
+        }
+		
+		return retIdentifier;
 	}
 	
 	@Override
 	public boolean releaseLock(String lockName, String identifier) {
-		return false;
+		getCluster();
+		String lockKey = "lock:" + lockName;
+		boolean retFlag = false;
+		try {
+			/** if key had bean timeout, return true.**/
+			if (jc.pttl(lockKey) == -2) {
+				retFlag = true;
+				return retFlag;
+			}
+			if (identifier.equals(jc.get(lockKey))) {
+				jc.del(lockKey);
+				retFlag = true;
+			}
+		} catch (JedisClusterException jcException) {
+            log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new CacheClientException(e);
+        }
+		
+		return retFlag;
 	}
 }
