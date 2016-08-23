@@ -4,8 +4,8 @@ allprojects{
     apply plugin: 'maven-publish'
 
     ext {
-		moduleMode="-SNAPSHOT";
-		//moduleMode="";
+		//moduleMode="-SNAPSHOT";
+		moduleMode="";
         moduleVersion="0.3"+moduleMode;
         publishUserName = "devadm"
         publishUserPassword = "Devadm@1212"
@@ -24,7 +24,7 @@ allprojects{
 }
 
 subprojects{
-    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+    [compileJava, compileTestJava,javadoc]*.options*.encoding = 'UTF-8'
 
     repositories {
         maven{ url "http://10.1.228.199:18081/nexus/content/groups/public/"  }
@@ -60,6 +60,24 @@ project("sdk-mcs-base"){
         }
     }
 
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		baseName moduleName
+	    version moduleVersion
+	    classifier = 'sources'
+	    from sourceSets.main.allSource
+	}
+	
+	task javadocJar(type: Jar, dependsOn: javadoc) {
+		baseName moduleName
+	    version moduleVersion
+	    classifier = 'javadoc'
+	    from javadoc.destinationDir
+	}
+	
+	artifacts {
+	    archives sourcesJar
+	    archives javadocJar
+	}
     publish.dependsOn build
 }
 
@@ -77,6 +95,24 @@ project("sdk-mcs-comp"){
         }
     }
 
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		baseName moduleName
+	    version moduleVersion
+	    classifier = 'sources'
+	    from sourceSets.main.allSource
+	}
+	
+	task javadocJar(type: Jar, dependsOn: javadoc) {
+		baseName moduleName
+	    version moduleVersion
+	    classifier = 'javadoc'
+	    from javadoc.destinationDir
+	}
+	
+	artifacts {
+	    archives sourcesJar
+	    archives javadocJar
+	}
     publish.dependsOn build
 }
 
@@ -94,5 +130,23 @@ project("sdk-mcs-srv"){
         }
     }
 
+	task sourcesJar(type: Jar, dependsOn: classes) {
+		baseName moduleName
+	    version moduleVersion
+	    classifier = 'sources'
+	    from sourceSets.main.allSource
+	}
+	
+	task javadocJar(type: Jar, dependsOn: javadoc) {
+		baseName moduleName
+	    version moduleVersion
+	    classifier = 'javadoc'
+	    from javadoc.destinationDir
+	}
+	
+	artifacts {
+	    archives sourcesJar
+	    archives javadocJar
+	}
     publish.dependsOn build
 }
