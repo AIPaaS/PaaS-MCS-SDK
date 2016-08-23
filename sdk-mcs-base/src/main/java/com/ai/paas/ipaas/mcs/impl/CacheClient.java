@@ -1,20 +1,23 @@
 package com.ai.paas.ipaas.mcs.impl;
 
-import com.ai.paas.ipaas.mcs.exception.CacheClientException;
-import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.LoggerFactory;
 
+import com.ai.paas.ipaas.mcs.exception.CacheClientException;
+import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * redis的客户端实现
@@ -2405,6 +2408,149 @@ public class CacheClient implements ICacheClient {
 			} else {
 				log.error(jedisConnectionException.getMessage(),
 						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public String acquireLock(String lockName, long acquireTimeoutInMS, long lockTimeoutInMS) {
+		Jedis jedis = null;
+		String retIdentifier = null;
+		try {
+			jedis = getJedis();
+			String identifier = UUID.randomUUID().toString();
+			String lockKey = "lock:" + lockName;
+			int lockExpire = (int) (lockTimeoutInMS / 1000);
+
+			long end = System.currentTimeMillis() + acquireTimeoutInMS;
+			while (System.currentTimeMillis() < end) {
+				if (jedis.setnx(lockKey, identifier) == 1) {
+					jedis.expire(lockKey, lockExpire);
+					retIdentifier = identifier;
+				}
+				if (jedis.ttl(lockKey) == -1) {
+					jedis.expire(lockKey, lockExpire);
+				}
+
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException ie) {
+					Thread.currentThread().interrupt();
+				}
+			}
+		} catch (JedisConnectionException jedisConnectionException) {
+			log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+			throw new CacheClientException(jedisConnectionException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+		
+		return retIdentifier;
+	}
+
+	@Override
+	public boolean releaseLock(String lockName, String identifier) {
+		Jedis jedis = null;
+		String lockKey = "lock:" + lockName;
+		boolean retFlag = false;
+		try {
+			jedis = getJedis();
+			while (true) {
+				jedis.watch(lockKey);
+				if (identifier.equals(jedis.get(lockKey))) {
+					Transaction trans = jedis.multi();
+					trans.del(lockKey);
+					List<Object> results = trans.exec();
+					if (results == null) {
+						continue;
+					}
+					retFlag = true;
+				}
+				jedis.unwatch();
+				break;
+			}
+		} catch (JedisConnectionException jedisConnectionException) {
+			log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+			throw new CacheClientException(jedisConnectionException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+		return retFlag;
+	}
+	
+	@Override
+	public Long publish(final String channel, final String message) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.publish(channel, message);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return publish(channel, message);
+			} else {
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public void subscribe(final JedisPubSub jedisPubSub, final String... channels) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			jedis.subscribe(jedisPubSub, channels);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				subscribe(jedisPubSub, channels);
+			} else {
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+
+	@Override
+	public void psubscribe(final JedisPubSub jedisPubSub, final String... patterns) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			jedis.psubscribe(jedisPubSub, patterns);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				psubscribe(jedisPubSub, patterns);
+			} else {
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {

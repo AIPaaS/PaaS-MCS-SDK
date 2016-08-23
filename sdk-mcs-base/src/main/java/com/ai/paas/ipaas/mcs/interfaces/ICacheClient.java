@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
@@ -896,4 +897,43 @@ public interface ICacheClient {
     Long zremrangeByScore(final String key, final double start, final double end);
 
     Long zremrangeByScore(final String key, final String start, final String end);
+    
+    /**
+	 * 获取分布式锁
+	 * @param lockName 竞争获取锁key
+	 * @param acquireTimeoutInMS 获取锁超时时间(ms)
+	 * @param lockTimeoutInMS 锁的超时时间(ms)
+	 * @return 获取锁标识
+	 */
+    String acquireLock(String lockName, long acquireTimeoutInMS, long lockTimeoutInMS);
+    
+    /**
+	 * 释放锁
+	 * @param lockName 竞争获取锁key
+	 * @param identifier 释放锁标识
+	 * @return boolean
+	 */
+    boolean releaseLock(String lockName, String identifier);
+    
+    /**
+     * 发布
+     * @param channel
+     * @param message
+     * @return
+     */
+    public Long publish(final String channel, final String message);
+
+    /**
+     * 订阅
+     * @param jedisPubSub
+     * @param channels
+     */
+    public void subscribe(final JedisPubSub jedisPubSub, final String... channels);
+
+    /**
+     * 模式订阅
+     * @param jedisPubSub
+     * @param patterns
+     */
+    public void psubscribe(final JedisPubSub jedisPubSub, final String... patterns);
 }
