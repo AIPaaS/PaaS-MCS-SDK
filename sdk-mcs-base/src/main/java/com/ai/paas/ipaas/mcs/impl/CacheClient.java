@@ -13,6 +13,7 @@ import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.params.sortedset.ZAddParams;
@@ -2490,5 +2491,74 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 		return retFlag;
+	}
+	
+	@Override
+	public Long publish(final String channel, final String message) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.publish(channel, message);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return publish(channel, message);
+			} else {
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public void subscribe(final JedisPubSub jedisPubSub, final String... channels) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			jedis.subscribe(jedisPubSub, channels);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				subscribe(jedisPubSub, channels);
+			} else {
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+
+	@Override
+	public void psubscribe(final JedisPubSub jedisPubSub, final String... patterns) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			jedis.psubscribe(jedisPubSub, patterns);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				psubscribe(jedisPubSub, patterns);
+			} else {
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
 	}
 }

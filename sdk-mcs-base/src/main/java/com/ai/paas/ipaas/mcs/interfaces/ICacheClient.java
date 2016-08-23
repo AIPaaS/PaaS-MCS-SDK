@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
@@ -913,4 +914,26 @@ public interface ICacheClient {
 	 * @return boolean
 	 */
     boolean releaseLock(String lockName, String identifier);
+    
+    /**
+     * 发布
+     * @param channel
+     * @param message
+     * @return
+     */
+    public Long publish(final String channel, final String message);
+
+    /**
+     * 订阅
+     * @param jedisPubSub
+     * @param channels
+     */
+    public void subscribe(final JedisPubSub jedisPubSub, final String... channels);
+
+    /**
+     * 模式订阅
+     * @param jedisPubSub
+     * @param patterns
+     */
+    public void psubscribe(final JedisPubSub jedisPubSub, final String... patterns);
 }
