@@ -4,9 +4,11 @@ allprojects{
     apply plugin: 'maven-publish'
 
     ext {
-		//moduleMode="-SNAPSHOT";
-		moduleMode="";
-        moduleVersion="0.3"+moduleMode;
+		moduleVersion = version != "unspecified"?version:'0.3'
+		moduleMode = project.hasProperty('mode') ? project.getProperty('mode') : 'R'
+		if(moduleMode == 'S'){
+			moduleVersion = moduleVersion + "-SNAPSHOT";
+		}
         publishUserName = "devadm"
         publishUserPassword = "Devadm@1212"
 		publishSnapShotsURL="http://10.1.228.199:18081/nexus/content/repositories/snapshots/"
@@ -67,16 +69,8 @@ project("sdk-mcs-base"){
 	    from sourceSets.main.allSource
 	}
 	
-	task javadocJar(type: Jar, dependsOn: javadoc) {
-		baseName moduleName
-	    version moduleVersion
-	    classifier = 'javadoc'
-	    from javadoc.destinationDir
-	}
-	
 	artifacts {
 	    archives sourcesJar
-	    archives javadocJar
 	}
     publish.dependsOn build
 }
@@ -102,16 +96,8 @@ project("sdk-mcs-comp"){
 	    from sourceSets.main.allSource
 	}
 	
-	task javadocJar(type: Jar, dependsOn: javadoc) {
-		baseName moduleName
-	    version moduleVersion
-	    classifier = 'javadoc'
-	    from javadoc.destinationDir
-	}
-	
 	artifacts {
 	    archives sourcesJar
-	    archives javadocJar
 	}
     publish.dependsOn build
 }
@@ -137,16 +123,8 @@ project("sdk-mcs-srv"){
 	    from sourceSets.main.allSource
 	}
 	
-	task javadocJar(type: Jar, dependsOn: javadoc) {
-		baseName moduleName
-	    version moduleVersion
-	    classifier = 'javadoc'
-	    from javadoc.destinationDir
-	}
-	
 	artifacts {
 	    archives sourcesJar
-	    archives javadocJar
 	}
     publish.dependsOn build
 }
