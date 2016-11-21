@@ -936,4 +936,27 @@ public interface ICacheClient {
      * @param patterns
      */
     public void psubscribe(final JedisPubSub jedisPubSub, final String... patterns);
+    
+    /**
+     * 返回map对象中的所有key
+     * @param key
+     * @return
+     * @author gucl
+     * @ApiDocMethod
+     * @ApiCode
+     * @RestRelativeURL
+     */
+    public Set<String> hkeys(final String key);
+    
+    /**
+     * 返回map对象中的所有value
+     * @param key
+     * @return
+     * @author gucl
+     * @ApiDocMethod
+     * @ApiCode
+     * @RestRelativeURL
+     */
+    public List<String> hvals(final String key);
+    
 }

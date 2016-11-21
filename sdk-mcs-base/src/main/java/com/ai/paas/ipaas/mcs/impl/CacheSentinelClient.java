@@ -2475,4 +2475,52 @@ public class CacheSentinelClient implements ICacheClient {
 	public boolean releaseLock(String lockName, String identifier) {
 		throw new CacheClientException("sentinel mode is no surpport lock.");
 	}
+	
+	@Override
+	public Set<String> hkeys(String key) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.hkeys(key);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return hkeys(key);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+
+	@Override
+	public List<String> hvals(String key) {
+		Jedis jedis = null;
+		try {
+			jedis = getJedis();
+			return jedis.hvals(key);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return hvals(key);
+			} else {
+				log.error(jedisConnectionException.getMessage(),
+						jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
 }

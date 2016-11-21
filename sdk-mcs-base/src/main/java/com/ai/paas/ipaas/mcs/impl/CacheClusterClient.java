@@ -13,9 +13,11 @@ import com.ai.paas.ipaas.mcs.exception.CacheClientException;
 import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
 
 import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.exceptions.JedisClusterException;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
 
@@ -1896,6 +1898,44 @@ public class CacheClusterClient implements ICacheClient {
 			throw new CacheClientException(e);
 		} finally {
 		}
+	}
+	
+	@Override
+	public Set<String> hkeys(String key) {
+		try {
+			return jc.hkeys(key);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return hkeys(key);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+		
+	}
+
+	@Override
+	public List<String> hvals(String key) {
+		try {
+			return jc.hvals(key);
+		} catch (JedisClusterException jcException) {
+			getCluster();
+			if (canConnection()) {
+				return hvals(key);
+			}
+			log.error(jcException.getMessage(), jcException);
+            throw new CacheClientException(jcException);
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+		}
+		
 	}
 	
 }
