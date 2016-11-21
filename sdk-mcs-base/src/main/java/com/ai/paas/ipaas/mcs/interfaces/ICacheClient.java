@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.mcs.interfaces;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -958,5 +959,23 @@ public interface ICacheClient {
      * @RestRelativeURL
      */
     public List<String> hvals(final String key);
+    
+    /**
+     * Return all the fields in a hash.
+     * <p>
+     * <b>Time complexity:</b> O(N), where N is the total number of entries
+     * @param key
+     * @return All the fields names contained into a hash.
+     */
+    public Set<byte[]> hkeys(final byte[] key);
+
+      /**
+       * Return all the values in a hash.
+       * <p>
+       * <b>Time complexity:</b> O(N), where N is the total number of entries
+       * @param key
+       * @return All the fields values contained into a hash.
+       */
+      public Collection<byte[]> hvals(final byte[] key);
     
 }
