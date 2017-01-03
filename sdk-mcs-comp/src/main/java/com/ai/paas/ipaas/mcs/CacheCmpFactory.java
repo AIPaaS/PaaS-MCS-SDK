@@ -27,16 +27,17 @@ public class CacheCmpFactory {
 		genericObjectPoolConfig.setTestOnBorrow(Boolean.parseBoolean(config.getProperty("mcs.testOnBorrow", "true")));
 
 		String host = config.getProperty("mcs.host", "127.0.0.1:6379");
-
+		String password = config.getProperty("mcs.password", "");
+		
 		String[] hostArray = host.split(";");
 		ICacheClient cacheClient = null;
 		if (null != cacheClients.get(host)) {
 			return cacheClients.get(host);
 		}
 		if (hostArray.length > 1) {
-			cacheClient = new CacheClusterClient(genericObjectPoolConfig, hostArray);
+			cacheClient = new CacheClusterClient(genericObjectPoolConfig, hostArray,password);
 		} else {
-			cacheClient = new CacheClient(genericObjectPoolConfig, host);
+			cacheClient = new CacheClient(genericObjectPoolConfig, host,password);
 		}
 		cacheClients.put(host, cacheClient);
 		return cacheClient;
