@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ai.paas.ipaas.mcs.exception.CacheClientException;
 import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+import com.ai.paas.ipaas.util.StringUtil;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -24,8 +25,7 @@ import redis.clients.jedis.params.sortedset.ZIncrByParams;
  */
 public class CacheClient implements ICacheClient {
 
-	private static transient final org.slf4j.Logger log = LoggerFactory
-			.getLogger(CacheClient.class);
+	private static transient final org.slf4j.Logger log = LoggerFactory.getLogger(CacheClient.class);
 	private JedisPool pool;
 	private GenericObjectPoolConfig config;
 	private static final int TIMEOUT_KEY = 15000;
@@ -43,10 +43,10 @@ public class CacheClient implements ICacheClient {
 		this.config = config;
 		this.host = host;
 		this.pwd = pwd;
-		isRedisNeedAuth = true;
+		if (!StringUtil.isBlank(pwd))
+			isRedisNeedAuth = true;
 		createPool();
 	}
-	
 
 	private synchronized void createPool() {
 		if (!canConnection()) {
@@ -56,11 +56,9 @@ public class CacheClient implements ICacheClient {
 				if (config.getMaxWaitMillis() < 15000)
 					config.setMaxWaitMillis(15000);
 				if (isRedisNeedAuth) {
-					pool = new JedisPool(config, hostArr[0],
-							Integer.parseInt(hostArr[1]), TIMEOUT_KEY, pwd);
+					pool = new JedisPool(config, hostArr[0], Integer.parseInt(hostArr[1]), TIMEOUT_KEY, pwd);
 				} else {
-					pool = new JedisPool(config, hostArr[0],
-							Integer.parseInt(hostArr[1]));
+					pool = new JedisPool(config, hostArr[0], Integer.parseInt(hostArr[1]));
 				}
 				if (canConnection())
 					log.info("Redis Server Info:" + host);
@@ -118,8 +116,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return set(key, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -142,8 +139,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return setex(key, seconds, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -165,8 +161,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return get(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -188,8 +183,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return del(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -211,8 +205,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hincrBy(key, field, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -235,8 +228,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return incrByFloat(key, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -259,8 +251,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hincrByFloat(key, field, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -282,8 +273,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return del(keys);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -305,8 +295,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return expire(key, seconds);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -329,8 +318,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return expireAt(key, seconds);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -352,8 +340,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return ttl(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -375,8 +362,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return exists(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -398,8 +384,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return incr(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -421,8 +406,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return incrBy(key, increment);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -444,8 +428,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return decr(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -467,8 +450,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return decrBy(key, decrement);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -490,8 +472,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lpush(key, strings);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -513,8 +494,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return rpush(key, strings);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -536,8 +516,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return llen(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -559,8 +538,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lpop(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -582,8 +560,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return rpop(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -605,8 +582,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lrange(key, start, end);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -628,8 +604,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lrangeAll(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -651,8 +626,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hset(key, field, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -674,8 +648,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hsetnx(key, field, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -697,8 +670,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hmset(key, hash);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -720,8 +692,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hget(key, field);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -743,8 +714,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hmget(key, fields);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -766,8 +736,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hexists(key, field);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -789,8 +758,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hdel(key, fields);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -812,8 +780,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hlen(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -835,8 +802,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hgetAll(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -858,8 +824,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return sadd(key, members);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -881,8 +846,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return smembers(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -904,8 +868,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return srem(key, members);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -927,8 +890,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return scard(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -950,8 +912,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return sunion(keys);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -973,8 +934,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return sdiff(keys);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -996,8 +956,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return sdiffstore(dstkey, keys);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1019,8 +978,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return set(key, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1042,8 +1000,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return setex(key, seconds, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1065,8 +1022,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return get(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1088,8 +1044,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return del(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1111,8 +1066,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return del(keys);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1134,8 +1088,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return expire(key, seconds);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1158,8 +1111,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return expireAt(key, seconds);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1181,8 +1133,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return ttl(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1204,8 +1155,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return exists(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1227,8 +1177,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return incr(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1250,8 +1199,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return incrBy(key, increment);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1273,8 +1221,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return decr(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1296,8 +1243,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return decrBy(key, decrement);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1319,8 +1265,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lpush(key, strings);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1342,8 +1287,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return rpush(key, strings);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1365,8 +1309,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return llen(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1388,8 +1331,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lpop(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1411,8 +1353,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return rpop(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1434,8 +1375,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lrange(key, start, end);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1457,8 +1397,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lrangeAll(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1480,8 +1419,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hset(key, field, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1503,8 +1441,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hsetnx(key, field, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1527,8 +1464,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return jedis.setnx(key, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1555,8 +1491,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hmset(key, hash);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1578,8 +1513,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hget(key, field);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1601,8 +1535,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hmget(key, fields);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1624,8 +1557,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hexists(key, field);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1647,8 +1579,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hdel(key, fields);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1670,8 +1601,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hlen(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1693,8 +1623,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hgetAll(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1716,8 +1645,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return sadd(key, members);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1739,8 +1667,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return smembers(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1762,8 +1689,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return srem(key, members);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1785,8 +1711,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return scard(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1808,8 +1733,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return sunion(keys);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1831,8 +1755,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return sdiff(keys);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1854,8 +1777,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return sdiffstore(dstkey, keys);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1878,8 +1800,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lrem(key, count, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1902,8 +1823,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return lrem(key, count, value);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1914,7 +1834,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public Long zadd(String key, double score, String member) {
 		Jedis jedis = null;
@@ -1926,8 +1846,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zadd(key, score, member);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1938,7 +1857,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public Long zadd(final String key, final double score, final String member, final ZAddParams params) {
 		Jedis jedis = null;
@@ -1950,8 +1869,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zadd(key, score, member, params);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1962,7 +1880,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-    
+
 	@Override
 	public Long zadd(String key, Map<String, Double> scoreMembers) {
 		Jedis jedis = null;
@@ -1974,8 +1892,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zadd(key, scoreMembers);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -1986,7 +1903,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-    
+
 	@Override
 	public Long zadd(final String key, final Map<String, Double> scoreMembers, final ZAddParams params) {
 		Jedis jedis = null;
@@ -1998,8 +1915,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zadd(key, scoreMembers, params);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2010,7 +1926,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public Long zcount(final String key, final double min, final double max) {
 		Jedis jedis = null;
@@ -2022,8 +1938,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zcount(key, min, max);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2034,7 +1949,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-    
+
 	@Override
 	public Long zcount(final String key, final String min, final String max) {
 		Jedis jedis = null;
@@ -2046,8 +1961,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zcount(key, min, max);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2057,8 +1971,8 @@ public class CacheClient implements ICacheClient {
 			if (jedis != null)
 				returnResource(jedis);
 		}
-    }
-	
+	}
+
 	@Override
 	public Double zincrby(final String key, final double score, final String member) {
 		Jedis jedis = null;
@@ -2070,8 +1984,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zincrby(key, score, member);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2082,7 +1995,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-    
+
 	@Override
 	public Double zincrby(String key, double score, String member, ZIncrByParams params) {
 		Jedis jedis = null;
@@ -2094,8 +2007,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zincrby(key, score, member, params);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2105,8 +2017,8 @@ public class CacheClient implements ICacheClient {
 			if (jedis != null)
 				returnResource(jedis);
 		}
-    }
-	
+	}
+
 	@Override
 	public Set<String> zrange(final String key, final long start, final long end) {
 		Jedis jedis = null;
@@ -2118,8 +2030,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrange(key, start, end);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2130,7 +2041,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public Set<String> zrangeByScore(final String key, final double min, final double max) {
 		Jedis jedis = null;
@@ -2142,8 +2053,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrangeByScore(key, min, max);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2156,7 +2066,7 @@ public class CacheClient implements ICacheClient {
 	}
 
 	@Override
-	public Set<String> zrangeByScore(final String key, final String min, final String max){
+	public Set<String> zrangeByScore(final String key, final String min, final String max) {
 		Jedis jedis = null;
 		try {
 			jedis = getJedis();
@@ -2166,8 +2076,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrangeByScore(key, min, max);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2177,10 +2086,11 @@ public class CacheClient implements ICacheClient {
 			if (jedis != null)
 				returnResource(jedis);
 		}
-    }
+	}
 
 	@Override
-	public Set<String> zrangeByScore(final String key, final double min, final double max, final int offset, int count) {
+	public Set<String> zrangeByScore(final String key, final double min, final double max, final int offset,
+			int count) {
 		Jedis jedis = null;
 		try {
 			jedis = getJedis();
@@ -2190,8 +2100,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrangeByScore(key, min, max, offset, count);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2201,8 +2110,8 @@ public class CacheClient implements ICacheClient {
 			if (jedis != null)
 				returnResource(jedis);
 		}
-    }
-	
+	}
+
 	@Override
 	public Set<String> zrevrange(final String key, final long start, final long end) {
 		Jedis jedis = null;
@@ -2214,8 +2123,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrevrange(key, start, end);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2226,7 +2134,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public Set<String> zrevrangeByScore(final String key, final double max, final double min) {
 		Jedis jedis = null;
@@ -2238,8 +2146,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrevrangeByScore(key, max, min);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2262,8 +2169,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrevrangeByScore(key, max, min);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2273,10 +2179,11 @@ public class CacheClient implements ICacheClient {
 			if (jedis != null)
 				returnResource(jedis);
 		}
-    }
+	}
 
 	@Override
-	public Set<String> zrevrangeByScore(final String key, final double max, final double min, final int offset, int count) {
+	public Set<String> zrevrangeByScore(final String key, final double max, final double min, final int offset,
+			int count) {
 		Jedis jedis = null;
 		try {
 			jedis = getJedis();
@@ -2286,8 +2193,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrevrangeByScore(key, max, min, offset, count);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2297,8 +2203,8 @@ public class CacheClient implements ICacheClient {
 			if (jedis != null)
 				returnResource(jedis);
 		}
-    }
-	
+	}
+
 	@Override
 	public Long zrevrank(final String key, final String member) {
 		Jedis jedis = null;
@@ -2310,8 +2216,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrevrank(key, member);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2322,7 +2227,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public Long zrem(final String key, final String... member) {
 		Jedis jedis = null;
@@ -2334,8 +2239,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zrem(key, member);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2346,7 +2250,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public Long zremrangeByRank(final String key, final long start, final long end) {
 		Jedis jedis = null;
@@ -2358,8 +2262,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zremrangeByRank(key, start, end);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2370,7 +2273,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public Long zremrangeByScore(final String key, final double start, final double end) {
 		Jedis jedis = null;
@@ -2382,8 +2285,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zremrangeByScore(key, start, end);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2394,7 +2296,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public Long zremrangeByScore(final String key, final String start, final String end) {
 		Jedis jedis = null;
@@ -2406,8 +2308,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return zremrangeByScore(key, start, end);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2418,7 +2319,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public String acquireLock(String lockName, long acquireTimeoutInMS, long lockTimeoutInMS) {
 		Jedis jedis = null;
@@ -2455,7 +2356,7 @@ public class CacheClient implements ICacheClient {
 			if (jedis != null)
 				returnResource(jedis);
 		}
-		
+
 		return retIdentifier;
 	}
 
@@ -2492,7 +2393,7 @@ public class CacheClient implements ICacheClient {
 		}
 		return retFlag;
 	}
-	
+
 	@Override
 	public Long publish(final String channel, final String message) {
 		Jedis jedis = null;
@@ -2515,7 +2416,7 @@ public class CacheClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
-	
+
 	@Override
 	public void subscribe(final JedisPubSub jedisPubSub, final String... channels) {
 		Jedis jedis = null;
@@ -2573,8 +2474,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hkeys(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2597,8 +2497,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hvals(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2621,8 +2520,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hkeys(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
@@ -2645,8 +2543,7 @@ public class CacheClient implements ICacheClient {
 			if (canConnection()) {
 				return hvals(key);
 			} else {
-				log.error(jedisConnectionException.getMessage(),
-						jedisConnectionException);
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);
 			}
 		} catch (Exception e) {
