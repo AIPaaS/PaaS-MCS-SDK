@@ -1974,6 +1974,11 @@ public class CacheClusterClient implements ICacheClient {
 		}
 	}
 	
-	
+	public static void main(String[] args){
+		String[] hosts={"10.1.245.224:36379","10.1.245.224:36380","10.1.245.224:36381","10.1.245.224:36382","10.1.245.224:36383","10.1.245.8:36384"};
+		ICacheClient client=new CacheClusterClient(new GenericObjectPoolConfig(), hosts,"123456");
+		//client.set("dxf", "123456");
+		System.out.println(client.get("dxf"));
+	}
 	
 }

@@ -3,6 +3,7 @@ dependencies{
 	compile 'org.apache.commons:commons-pool2:2.4.2'
 	compile 'org.apache.logging.log4j:log4j-api:2.2'
 	compile 'com.ai:ipaas-uac:0.3'
+	compile 'io.codis.jodis:jodis:0.3.0'
 }
 
 publishing {
@@ -34,6 +35,11 @@ publishing {
 							delegate.groupId("org.apache.logging.log4j")
 							delegate.artifactId("log4j-api")
 							delegate.version("2.2")
+						}
+						delegate.dependency {
+							delegate.groupId("io.codis.jodis")
+							delegate.artifactId("jodis")
+							delegate.version("0.3.0")
 						}
 					}
 				}
@@ -67,6 +73,11 @@ publishing {
 							delegate.groupId("org.apache.logging.log4j")
 							delegate.artifactId("log4j-api")
 							delegate.version("2.2")
+						}
+						delegate.dependency {
+							delegate.groupId("io.codis.jodis")
+							delegate.artifactId("jodis")
+							delegate.version("0.3.0")
 						}
 					}
 				}

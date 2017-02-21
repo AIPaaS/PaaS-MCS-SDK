@@ -2571,4 +2571,10 @@ public class CacheSentinelClient implements ICacheClient {
 				returnResource(jedis);
 		}
 	}
+	
+	public static void main(String[] args){
+		ICacheClient client=new CacheSentinelClient(new GenericObjectPoolConfig(), "10.1.245.224:32379;10.1.245.225:32379;10.1.245.8:32379;10.1.245.9:32379","123456");
+		//client.set("dxf", "123456");
+		System.out.println(client.get("dxf"));
+	}
 }

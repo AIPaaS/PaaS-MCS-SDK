@@ -2,7 +2,10 @@ package com.ai.paas.ipaas.mcs;
 
 import com.ai.paas.ipaas.mcs.impl.CacheClient;
 import com.ai.paas.ipaas.mcs.impl.CacheClusterClient;
+import com.ai.paas.ipaas.mcs.impl.CacheCodisClient;
 import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+import com.ai.paas.ipaas.util.StringUtil;
+
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import java.io.IOException;
@@ -25,19 +28,29 @@ public class CacheCmpFactory {
 		genericObjectPoolConfig.setMaxIdle(Integer.parseInt(config.getProperty("mcs.maxIdle", "10")));
 		genericObjectPoolConfig.setMinIdle(Integer.parseInt(config.getProperty("mcs.minIdle", "5")));
 		genericObjectPoolConfig.setTestOnBorrow(Boolean.parseBoolean(config.getProperty("mcs.testOnBorrow", "true")));
+		String zkAddr = config.getProperty("mcs.codis.zk.addr", "");
+		String zkPath = config.getProperty("mcs.codis.zk.path", "");
 
 		String host = config.getProperty("mcs.host", "127.0.0.1:6379");
 		String password = config.getProperty("mcs.password", "");
-		
+
 		String[] hostArray = host.split(";");
+		if (!StringUtil.isBlank(zkAddr)) {
+			host = zkAddr;
+		}
 		ICacheClient cacheClient = null;
 		if (null != cacheClients.get(host)) {
 			return cacheClients.get(host);
 		}
-		if (hostArray.length > 1) {
-			cacheClient = new CacheClusterClient(genericObjectPoolConfig, hostArray,password);
+		// add codis support
+		if (!StringUtil.isBlank(zkAddr)) {
+			cacheClient = new CacheCodisClient(zkAddr, zkPath);
 		} else {
-			cacheClient = new CacheClient(genericObjectPoolConfig, host,password);
+			if (hostArray.length > 1) {
+				cacheClient = new CacheClusterClient(genericObjectPoolConfig, hostArray, password);
+			} else {
+				cacheClient = new CacheClient(genericObjectPoolConfig, host, password);
+			}
 		}
 		cacheClients.put(host, cacheClient);
 		return cacheClient;
