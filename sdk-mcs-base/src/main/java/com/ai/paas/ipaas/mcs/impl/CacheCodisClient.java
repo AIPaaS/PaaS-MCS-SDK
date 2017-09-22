@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ai.paas.ipaas.mcs.exception.CacheClientException;
 import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+import com.ai.paas.ipaas.util.StringUtil;
 
 import io.codis.jodis.JedisResourcePool;
 import io.codis.jodis.RoundRobinJedisPool;
@@ -2510,6 +2511,33 @@ public class CacheCodisClient implements ICacheClient {
 			createPool();
 			if (canConnection()) {
 				return hvals(key);
+			} else {
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+	
+	@Override
+	public Set<String> keys(String pattern) {
+		Jedis jedis = null;
+		try {
+			if (StringUtil.isBlank(pattern))
+				return null;
+			if ("*".equals(pattern))
+				return null;
+			jedis = getJedis();
+			return jedis.keys(pattern);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return jedis.keys(pattern);
 			} else {
 				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
 				throw new CacheClientException(jedisConnectionException);

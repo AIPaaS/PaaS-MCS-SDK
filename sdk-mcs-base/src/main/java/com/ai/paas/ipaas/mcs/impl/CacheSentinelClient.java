@@ -2471,9 +2471,36 @@ public class CacheSentinelClient implements ICacheClient {
 		}
 	}
 
+	@Override
+	public Set<String> keys(String pattern) {
+		Jedis jedis = null;
+		try {
+			if (StringUtil.isBlank(pattern))
+				return null;
+			if ("*".equals(pattern))
+				return null;
+			jedis = getJedis();
+			return jedis.keys(pattern);
+		} catch (JedisConnectionException jedisConnectionException) {
+			createPool();
+			if (canConnection()) {
+				return jedis.keys(pattern);
+			} else {
+				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+				throw new CacheClientException(jedisConnectionException);
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
+		}
+	}
+
 	public static void main(String[] args) {
 		ICacheClient client = new CacheSentinelClient(new GenericObjectPoolConfig(),
-				"10.1.235.23:26379,10.1.235.22:26379,10.1.235.24:26379","");
+				"10.1.235.23:26379,10.1.235.22:26379,10.1.235.24:26379", "");
 		client.set("dxf", "1234567");
 		System.out.println(client.get("dxf"));
 	}

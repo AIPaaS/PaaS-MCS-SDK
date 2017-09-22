@@ -977,5 +977,16 @@ public interface ICacheClient {
        * @return All the fields values contained into a hash.
        */
       public Collection<byte[]> hvals(final byte[] key);
+      
+      /**
+       * 查询Redis的键值列表，注意此方法不不能使用* 
+       * Glob style patterns examples:
+       *  h?llo will match hello hallo hhllo
+       *  h*llo will match hllo heeeello
+       *  h[ae]llo will match hello and hallo, but not hillo
+       * @param pattern
+       * @return
+       */
+      public Set<String> keys(String pattern);
     
 }
