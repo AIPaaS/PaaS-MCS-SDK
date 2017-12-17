@@ -58,7 +58,7 @@ public class CacheClient implements ICacheClient {
 				if (isRedisNeedAuth) {
 					pool = new JedisPool(config, hostArr[0], Integer.parseInt(hostArr[1]), TIMEOUT_KEY, pwd);
 				} else {
-					pool = new JedisPool(config, hostArr[0], Integer.parseInt(hostArr[1]));
+					pool = new JedisPool(config, hostArr[0], Integer.parseInt(hostArr[1]), TIMEOUT_KEY);
 				}
 				if (canConnection())
 					log.info("Redis Server Info:" + host);

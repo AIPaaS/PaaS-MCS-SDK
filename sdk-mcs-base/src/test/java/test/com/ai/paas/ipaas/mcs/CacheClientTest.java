@@ -2,6 +2,8 @@ package test.com.ai.paas.ipaas.mcs;
 
 import static org.junit.Assert.*;
 
+import java.util.Set;
+
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -18,8 +20,8 @@ public class CacheClientTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-		String host = "10.1.228.202:36823";
-		client = new CacheClient(config, host);
+		String host = "10.1.235.23:6379";
+		client = new CacheClient(config, host,"asc123");
 	}
 
 	@AfterClass
@@ -32,6 +34,13 @@ public class CacheClientTest {
 
 	@After
 	public void tearDown() throws Exception {
+	}
+
+	@Test
+	public void testKeys() {
+		Set<String> keys = client.keys("dxf*");
+		System.out.println(keys);
+		assertEquals(1, keys.size());
 	}
 
 	@Test
