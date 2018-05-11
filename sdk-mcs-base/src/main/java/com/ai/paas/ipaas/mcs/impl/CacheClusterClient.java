@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.mcs.impl;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisClusterException;
 import redis.clients.jedis.params.sortedset.ZAddParams;
 import redis.clients.jedis.params.sortedset.ZIncrByParams;
@@ -1978,7 +1980,7 @@ public class CacheClusterClient implements ICacheClient {
 
 	@Override
 	public Set<String> keys(String pattern) {
-		//集群模式不支持
+		// 集群模式不支持
 		return null;
 	}
 
@@ -1988,6 +1990,43 @@ public class CacheClusterClient implements ICacheClient {
 		ICacheClient client = new CacheClusterClient(new GenericObjectPoolConfig(), hosts, "123456");
 		// client.set("dxf", "123456");
 		System.out.println(client.get("dxf"));
+	}
+
+	@Override
+	public void close() {
+		if (null != jc) {
+			try {
+				jc.close();
+			} catch (IOException e) {
+				log.error(e.getMessage(), e);
+				throw new CacheClientException(e);
+			}
+		}
+	}
+
+	@Override
+	public Transaction startTransaction() {
+		throw new CacheClientException("unsupported feature!");
+	}
+
+	@Override
+	public void commitTransaction(Transaction tx) {
+		throw new CacheClientException("unsupported feature!");
+	}
+
+	@Override
+	public void rollbackTransaction(Transaction tx) {
+		throw new CacheClientException("unsupported feature!");
+	}
+
+	@Override
+	public void watch(String[] keys) {
+		throw new CacheClientException("unsupported feature!");
+	}
+
+	@Override
+	public void unwatch() {
+		throw new CacheClientException("unsupported feature!");
 	}
 
 }

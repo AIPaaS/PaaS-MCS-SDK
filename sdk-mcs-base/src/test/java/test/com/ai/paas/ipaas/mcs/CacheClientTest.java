@@ -2,6 +2,12 @@ package test.com.ai.paas.ipaas.mcs;
 
 import static org.junit.Assert.*;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
@@ -20,8 +26,8 @@ public class CacheClientTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-		String host = "10.1.235.23:6379";
-		client = new CacheClient(config, host,"asc123");
+		String host = "10.15.16.130:8801";
+		client = new CacheClient(config, host, "asc123");
 	}
 
 	@AfterClass
@@ -51,128 +57,216 @@ public class CacheClientTest {
 	}
 
 	@Test
-	public void testSetexStringIntString() {
-		fail("Not yet implemented");
+	public void testSetexStringIntString() throws Exception {
+		client.setex("dxf", 10, "123456");
+		assertEquals("123456", client.get("dxf"));
+		Thread.sleep(12000);
+		assertNotEquals("123456", client.get("dxf"));
 	}
 
 	@Test
 	public void testGetString() {
-		fail("Not yet implemented");
+		client.set("123", "123456");
+		assertEquals("123456", client.get("123"));
+		client.del("123");
 	}
 
 	@Test
 	public void testDelString() {
-		fail("Not yet implemented");
+		// for(int i=0;i<100;i++){
+		client.set("123", "123456");
+		client.del("123");
+		assertNotEquals("123456", client.get("123"));
+		// }
 	}
 
 	@Test
 	public void testDelStringArray() {
-		fail("Not yet implemented");
+		client.set("123", "123456");
+		client.set("dxf", "123456");
+		String[] keys = { "123", "dxf" };
+		client.del(keys);
+		assertNotEquals("123456", client.get("123"));
+		assertNotEquals("123456", client.get("dxf"));
 	}
 
 	@Test
-	public void testExpireStringInt() {
-		fail("Not yet implemented");
+	public void testExpireStringInt() throws Exception {
+		client.set("dxf", "123456");
+		Date d = Calendar.getInstance(Locale.CHINA).getTime();
+		System.out.println(d.getTime());
+		client.expireAt("dxf", d.getTime() / 1000 + 10);
+		System.out.println(client.ttl("dxf"));
+		System.out.println(d);
+		d.setTime(1524395546879L);
+		System.out.println(d);
+		Thread.sleep(12000);
+		assertNotEquals("123456", client.get("dxf"));
 	}
 
 	@Test
-	public void testExpireAtStringLong() {
-		fail("Not yet implemented");
+	public void testExpireAtStringLong() throws Exception {
+		client.set("dxf", "123456");
+		client.expire("dxf", 10);
+		Thread.sleep(12000);
+		assertNotEquals("123456", client.get("dxf"));
 	}
 
 	@Test
-	public void testTtlString() {
-		fail("Not yet implemented");
+	public void testTtlString() throws Exception {
+		client.set("dxf", "123456");
+		client.expire("dxf", 10);
+		Thread.sleep(1000);
+		System.out.println(client.ttl("dxf"));
+		assertTrue(10 > client.ttl("dxf"));
 	}
 
 	@Test
 	public void testExistsString() {
-		fail("Not yet implemented");
+		client.set("dxf123", "123456");
+		assertTrue(client.exists("dxf123"));
 	}
 
 	@Test
 	public void testIncrString() {
-		fail("Not yet implemented");
+		client.set("123", "1");
+		client.incr("123");
+		assertTrue("2".equals(client.get("123")));
 	}
 
 	@Test
 	public void testIncrByStringLong() {
-		fail("Not yet implemented");
+		client.set("123", "1");
+		client.incrBy("123", 100L);
+		assertTrue("101".equals(client.get("123")));
 	}
 
 	@Test
 	public void testDecrString() {
-		fail("Not yet implemented");
+		client.set("123", "1");
+		client.decr("123");
+		assertTrue("0".equals(client.get("123")));
 	}
 
 	@Test
 	public void testDecrByStringLong() {
-		fail("Not yet implemented");
+		client.set("123", "100");
+		client.decrBy("123", 99);
+		assertTrue("1".equals(client.get("123")));
 	}
 
 	@Test
 	public void testLpushStringStringArray() {
-		fail("Not yet implemented");
+		String[] values = { "A", "B", "C" };
+		client.lpush("push", values);
+		assertTrue("C".equals(client.lpop("push")));
+		client.del("push");
 	}
 
 	@Test
 	public void testRpushStringStringArray() {
-		fail("Not yet implemented");
+		String[] values = { "A", "B", "C" };
+		client.rpush("push", values);
+		assertTrue("A".equals(client.lpop("push")));
+		client.del("push");
 	}
 
 	@Test
 	public void testLremStringLongString() {
-		fail("Not yet implemented");
+		String[] values = { "A", "B", "C", "A", "B", "C" };
+		client.rpush("push", values);
+		client.lrem("push", 2, "A");
+		assertTrue("B".equals(client.lpop("push")));
+		client.del("push");
 	}
 
 	@Test
 	public void testLlenString() {
-		fail("Not yet implemented");
+		String[] values = { "A", "B", "C", "A", "B", "C" };
+		client.rpush("push", values);
+		assertTrue(6 == client.llen("push"));
+		client.del("push");
 	}
 
 	@Test
 	public void testLpopString() {
-		fail("Not yet implemented");
+		String[] values = { "A", "B", "C", "A", "B", "C" };
+		client.rpush("push", values);
+		assertTrue("A".equals(client.lpop("push")));
+		client.del("push");
 	}
 
 	@Test
 	public void testRpopString() {
-		fail("Not yet implemented");
+		String[] values = { "A", "B", "C", "A", "B", "C" };
+		client.rpush("push", values);
+		assertTrue("C".equals(client.rpop("push")));
+		client.del("push");
 	}
 
 	@Test
 	public void testLrangeStringLongLong() {
-		fail("Not yet implemented");
+		String[] values = { "A", "B", "C", "A", "B", "C" };
+		client.rpush("push", values);
+		List<String> list = client.lrange("push", 0, 2);
+		assertTrue(3 == list.size());
+		client.del("push");
 	}
 
 	@Test
 	public void testLrangeAllString() {
-		fail("Not yet implemented");
+		String[] values = { "A", "B", "C", "A", "B", "C" };
+		client.rpush("push", values);
+		List<String> list = client.lrangeAll("push");
+		assertTrue(6 == list.size());
+		client.del("push");
 	}
 
 	@Test
 	public void testHsetStringStringString() {
-		fail("Not yet implemented");
+		client.hset("first", "second", "123456");
+		assertTrue("123456".equals(client.hget("first", "second")));
+		client.del("first");
 	}
 
 	@Test
 	public void testHsetnxStringStringString() {
-		fail("Not yet implemented");
+		client.hset("first", "second", "123456");
+		client.hsetnx("first", "second", "12345678");
+		assertTrue("123456".equals(client.hget("first", "second")));
+		client.del("first");
+		client.hsetnx("first", "second", "12345678");
+		assertTrue("12345678".equals(client.hget("first", "second")));
+		client.del("first");
 	}
 
 	@Test
 	public void testHmsetStringMapOfStringString() {
-		fail("Not yet implemented");
+		Map<String, String> map = new HashMap<>();
+		map.put("second", "123456");
+		map.put("third", "12345678");
+		client.hmset("firset", map);
+		assertTrue("12345678".equals(client.hget("first", "third")));
 	}
 
 	@Test
 	public void testHgetStringString() {
-		fail("Not yet implemented");
+		client.hset("first", "second", "123456");
+		assertTrue("123456".equals(client.hget("first", "second")));
+		client.del("first");
 	}
 
 	@Test
 	public void testHmgetStringStringArray() {
-		fail("Not yet implemented");
+		Map<String, String> map = new HashMap<>();
+		map.put("second", "123456");
+		map.put("third", "12345678");
+		client.hmset("firset", map);
+		map = null;
+		String[] fields = { "third" };
+		List<String> list = client.hmget("firset", fields);
+		assertTrue("12345678".equals(list.get(0)));
+		client.del("firset");
 	}
 
 	@Test
