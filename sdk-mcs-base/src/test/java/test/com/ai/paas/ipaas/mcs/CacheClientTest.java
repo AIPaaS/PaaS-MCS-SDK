@@ -26,7 +26,7 @@ public class CacheClientTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-		String host = "10.15.16.130:8801";
+		String host = "10.15.16.130:9801";
 		client = new CacheClient(config, host, "asc123");
 	}
 
@@ -52,6 +52,10 @@ public class CacheClientTest {
 	@Test
 	public void testSetStringString() {
 		client.set("123", "123456");
+		for(int i=1;i<100000;i++){
+			client.set("dxf"+i, "1234567"+i);
+			client.get("dxf"+i);
+		}
 		assertEquals("123456", client.get("123"));
 		client.del("123");
 	}
@@ -271,172 +275,302 @@ public class CacheClientTest {
 
 	@Test
 	public void testHexistsStringString() {
-		fail("Not yet implemented");
+		Map<String, String> map = new HashMap<>();
+		map.put("second", "123456");
+		map.put("third", "12345678");
+		client.hmset("firset", map);
+		assertTrue(client.hexists("firset", "second"));
+		client.del("firset");
 	}
 
 	@Test
 	public void testHdelStringStringArray() {
-		fail("Not yet implemented");
+		Map<String, String> map = new HashMap<>();
+		map.put("second", "123456");
+		map.put("third", "12345678");
+		client.hmset("firset", map);
+		client.hdel("firset", "third");
+		assertTrue(!client.hexists("firset", "third"));
+		client.del("firset");
 	}
 
 	@Test
 	public void testHlenString() {
-		fail("Not yet implemented");
+		Map<String, String> map = new HashMap<>();
+		map.put("second", "123456");
+		map.put("third", "12345678");
+		client.hmset("firset", map);
+		assertTrue(2 == client.hlen("firset"));
+		client.del("firset");
 	}
 
 	@Test
 	public void testHgetAllString() {
-		fail("Not yet implemented");
+		Map<String, String> map = new HashMap<>();
+		map.put("second", "123456");
+		map.put("third", "12345678");
+		client.hmset("firset", map);
+		map = client.hgetAll("firset");
+		assertTrue(2 == map.size());
+		client.del("firset");
 	}
 
 	@Test
 	public void testSaddStringStringArray() {
-		fail("Not yet implemented");
+		String[] members = { "one", "two", "three" };
+		client.sadd("set", members);
+		assertTrue(3 == client.scard("set"));
+		client.del("set");
 	}
 
 	@Test
 	public void testSmembersString() {
-		fail("Not yet implemented");
+		String[] members = { "one", "two", "three", "three" };
+		client.sadd("set", members);
+		Set<String> sets = client.smembers("set");
+		assertTrue(3 == sets.size());
+		client.del("set");
 	}
 
 	@Test
 	public void testSremStringStringArray() {
-		fail("Not yet implemented");
+		String[] members = { "one", "two", "three", "three" };
+		client.sadd("set", members);
+		String[] rems = { "one", "four" };
+		long cont = client.srem("set", rems);
+		assertTrue(cont == 1);
+		client.del("set");
 	}
 
 	@Test
 	public void testScardString() {
-		fail("Not yet implemented");
+		String[] members = { "one", "two", "three", "three" };
+		client.sadd("set", members);
+		assertTrue(3 == client.scard("set"));
+		client.del("set");
 	}
 
 	@Test
 	public void testSunionStringArray() {
-		fail("Not yet implemented");
+		String[] members = { "one", "two", "three", "three" };
+		client.sadd("set", members);
+		String[] members1 = { "four", "five", "three", "six" };
+		client.sadd("set1", members1);
+		Set<String> sets = client.sunion("set", "set1");
+		assertTrue(6 == sets.size());
+		client.del("set");
+		client.del("set1");
 	}
 
 	@Test
 	public void testSdiffStringArray() {
-		fail("Not yet implemented");
+		String[] members = { "one", "two", "three", "three" };
+		client.sadd("set", members);
+		String[] members1 = { "four", "five", "three", "six" };
+		client.sadd("set1", members1);
+		Set<String> sets = client.sdiff("set", "set1");
+		assertTrue(2 == sets.size());
+		client.del("set");
+		client.del("set1");
 	}
 
 	@Test
 	public void testSdiffstoreStringStringArray() {
-		fail("Not yet implemented");
+		String[] members = { "one", "two", "three", "three" };
+		client.sadd("set", members);
+		String[] members1 = { "four", "five", "three", "six" };
+		client.sadd("set1", members1);
+		long count = client.sdiffstore("diff", "set", "set1");
+		assertTrue(2 == count);
+		client.del("set");
+		client.del("set1");
+		client.del("diff");
 	}
 
 	@Test
 	public void testSetByteArrayByteArray() {
-		fail("Not yet implemented");
+		client.set("one".getBytes(), "12345678".getBytes());
+		assertTrue("12345678".equals(client.get("one")));
+		client.del("one");
 	}
 
 	@Test
-	public void testSetexByteArrayIntByteArray() {
-		fail("Not yet implemented");
+	public void testSetexByteArrayIntByteArray() throws Exception {
+		client.set("one", "12345678");
+		client.setex("one".getBytes(), 10, "123456".getBytes());
+		assertTrue("123456".equals(client.get("one")));
+		Thread.sleep(12000);
+		assertNull(client.get("one"));
 	}
 
 	@Test
 	public void testGetByteArray() {
-		fail("Not yet implemented");
+		client.set("one", "12345678");
+		byte[] value = client.get("one".getBytes());
+		assertTrue("12345678".equals(new String(value)));
+		client.del("one");
 	}
 
 	@Test
 	public void testDelByteArray() {
-		fail("Not yet implemented");
+		client.set("one", "12345678");
+		client.del("one".getBytes());
+		assertNull(client.get("one"));
 	}
 
 	@Test
 	public void testDelByteArrayArray() {
-		fail("Not yet implemented");
+		client.set("one", "123456");
+		client.set("two", "789");
+		client.del("one".getBytes(), "two".getBytes());
+		assertNull(client.get("one"));
+		assertNull(client.get("two"));
 	}
 
 	@Test
-	public void testExpireByteArrayInt() {
-		fail("Not yet implemented");
+	public void testExpireByteArrayInt() throws Exception {
+		client.set("one", "123456");
+		client.expire("one".getBytes(), 5);
+		Thread.sleep(6000);
+		assertNull(client.get("one"));
 	}
 
 	@Test
 	public void testExpireAtByteArrayLong() {
-		fail("Not yet implemented");
+		client.set("one", "123456");
+		Date d = new Date();
+		client.expireAt("one", d.getTime() / 1000);
+		assertNull(client.get("one"));
 	}
 
 	@Test
 	public void testTtlByteArray() {
-		fail("Not yet implemented");
+		client.setex("one", 10, "123456");
+		long t = client.ttl("one".getBytes());
+		assertTrue(t >= 0);
+		client.del("one");
+		client.set("one", "123456");
+		t = client.ttl("one".getBytes());
+		assertTrue(t == -1);
+		client.del("one");
 	}
 
 	@Test
 	public void testExistsByteArray() {
-		fail("Not yet implemented");
+		client.set("one", "123456");
+		assertTrue(client.exists("one".getBytes()));
+		client.del("one");
 	}
 
 	@Test
 	public void testIncrByteArray() {
-		fail("Not yet implemented");
+		client.set("one", "123456");
+		long t = client.incr("one".getBytes());
+		assertTrue(t == 123457);
+		client.del("one");
 	}
 
 	@Test
 	public void testIncrByByteArrayLong() {
-		fail("Not yet implemented");
+		client.set("one", "123456");
+		long t = client.incrBy("one".getBytes(), 2);
+		assertTrue(t == 123458);
+		client.del("one");
 	}
 
 	@Test
 	public void testDecrByteArray() {
-		fail("Not yet implemented");
+		client.set("one", "123456");
+		long t = client.decr("one".getBytes());
+		assertTrue(t == 123455);
+		client.del("one");
 	}
 
 	@Test
 	public void testDecrByByteArrayLong() {
-		fail("Not yet implemented");
+		client.set("one", "123456");
+		long t = client.decrBy("one".getBytes(), 2);
+		assertTrue(t == 123454);
+		client.del("one");
 	}
 
 	@Test
 	public void testLpushByteArrayByteArrayArray() {
-		fail("Not yet implemented");
+		long count = client.lpush("one".getBytes(), "two".getBytes(), "three".getBytes());
+		assertTrue(count == 2);
+		assertTrue("three".equals(client.lpop("one")));
+		client.del("one");
+
 	}
 
 	@Test
 	public void testRpushByteArrayByteArrayArray() {
-		fail("Not yet implemented");
+		long count = client.rpush("one".getBytes(), "two".getBytes(), "three".getBytes());
+		assertTrue(count == 2);
+		assertTrue("two".equals(client.lpop("one")));
+
+		client.del("one");
 	}
 
 	@Test
 	public void testLlenByteArray() {
-		fail("Not yet implemented");
+		long count = client.rpush("one".getBytes(), "two".getBytes(), "three".getBytes());
+		count = client.llen("one".getBytes());
+		assertTrue(count == 2);
+		client.del("one");
 	}
 
 	@Test
 	public void testLremByteArrayLongByteArray() {
-		fail("Not yet implemented");
+		client.rpush("one".getBytes(), "two".getBytes(), "three".getBytes());
+		client.lrem("one".getBytes(), 1, "three".getBytes());
+		assertTrue("two".equals(client.lpop("one")));
+		client.del("one");
 	}
 
 	@Test
 	public void testLpopByteArray() {
-		fail("Not yet implemented");
+		client.rpush("one".getBytes(), "two".getBytes(), "three".getBytes());
+		assertTrue("two".equals(new String(client.lpop("one".getBytes()))));
+		client.del("one");
 	}
 
 	@Test
 	public void testRpopByteArray() {
-		fail("Not yet implemented");
+		client.rpush("one".getBytes(), "two".getBytes(), "three".getBytes());
+		assertTrue("three".equals(new String(client.rpop("one".getBytes()))));
+		client.del("one");
 	}
 
 	@Test
 	public void testLrangeByteArrayLongLong() {
-		fail("Not yet implemented");
+		client.rpush("one".getBytes(), "two".getBytes(), "three".getBytes());
+		List<byte[]> values = client.lrange("one".getBytes(), 0, 1);
+		assertTrue("two".equals(new String(values.get(0))));
+		client.del("one");
 	}
 
 	@Test
 	public void testLrangeAllByteArray() {
-		fail("Not yet implemented");
+		client.rpush("one".getBytes(), "two".getBytes(), "three".getBytes());
+		List<byte[]> values = client.lrangeAll("one".getBytes());
+		assertTrue("three".equals(new String(values.get(1))));
+		client.del("one");
 	}
 
 	@Test
 	public void testHsetByteArrayByteArrayByteArray() {
-		fail("Not yet implemented");
+		client.hset("map".getBytes(), "field".getBytes(), "value".getBytes());
+		assertTrue("value".equals(client.hget("map", "field")));
+		client.del("map");
 	}
 
 	@Test
 	public void testHsetnxByteArrayByteArrayByteArray() {
-		fail("Not yet implemented");
+		client.hset("map", "field", "value");
+		client.hsetnx("map".getBytes(), "field".getBytes(), "value1".getBytes());
+		assertTrue("value".equals(client.hget("map", "field")));
+		client.del("map");
 	}
 
 	@Test

@@ -373,7 +373,7 @@ public interface ICacheClient {
 	Set<String> sunion(String... keys);
 
 	/**
-	 * set 返回一个集合与给定集合的差集的元素.
+	 * set 返回第一个集合与后面集合的差集的元素.
 	 *
 	 * @param keys
 	 * @return 第一个集合比其余集合多出的元素 @
@@ -1017,16 +1017,35 @@ public interface ICacheClient {
 	public Set<String> keys(String pattern);
 
 	/**
+	 * 开启一个事务
 	 * 
-	 * @return
+	 * @return 返回有个事务对象，提交或者回滚时作为参数
 	 */
 	public Transaction startTransaction();
 
+	/**
+	 * 提交事务
+	 * 
+	 * @param tx
+	 */
 	public void commitTransaction(Transaction tx);
 
+	/**
+	 * 回滚事务
+	 * 
+	 * @param tx
+	 */
 	public void rollbackTransaction(Transaction tx);
 
-	public void watch(String[] keys);
+	/**
+	 * 观察一组键值，当变化时设置值会回滚
+	 * 
+	 * @param keys
+	 */
+	public void watch(String... keys);
 
+	/**
+	 * 取消监控键值
+	 */
 	public void unwatch();
 }

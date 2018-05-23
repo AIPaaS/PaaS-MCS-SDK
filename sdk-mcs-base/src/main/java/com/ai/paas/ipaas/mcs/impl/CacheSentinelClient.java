@@ -1,5 +1,6 @@
 package com.ai.paas.ipaas.mcs.impl;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +35,6 @@ public class CacheSentinelClient implements ICacheClient {
 	private String pwd;
 	@SuppressWarnings("unused")
 	private boolean isRedisNeedAuth = false;
-	private Jedis jedis = null;
 
 	public CacheSentinelClient(GenericObjectPoolConfig config, String host) {
 		this.config = config;
@@ -78,7 +78,7 @@ public class CacheSentinelClient implements ICacheClient {
 	private boolean canConnection() {
 		if (pool == null)
 			return false;
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			jedis.connect();
@@ -86,16 +86,19 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 		return true;
 	}
 
 	private Jedis getJedis() {
-		if (null == jedis) {
-			return pool.getResource();
-		}
-		return jedis;
+		return pool.getResource();
+	}
+
+	private void returnResource(Jedis jedis) {
+		jedis.close();
 	}
 
 	public void destroyPool() {
@@ -105,7 +108,7 @@ public class CacheSentinelClient implements ICacheClient {
 	}
 
 	public String set(String key, String value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.set(key, value);
@@ -120,12 +123,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
 
 	}
 
 	public String setex(String key, int seconds, String value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.setex(key, seconds, value);
@@ -140,12 +146,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public String get(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.get(key);
@@ -160,12 +168,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long del(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.del(key);
@@ -180,12 +190,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long hincrBy(String key, String field, long value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hincrBy(key, field, value);
@@ -200,13 +212,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Double incrByFloat(String key, double value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.incrByFloat(key, value);
@@ -221,13 +235,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Double hincrByFloat(String key, String field, double value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hincrByFloat(key, field, value);
@@ -242,12 +258,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long del(String... keys) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.del(keys);
@@ -262,12 +280,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long expire(String key, int seconds) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.expire((key), seconds);
@@ -282,8 +302,10 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
@@ -292,7 +314,7 @@ public class CacheSentinelClient implements ICacheClient {
 	}
 
 	public Long ttl(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.ttl(key);
@@ -307,12 +329,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public boolean exists(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.exists(key);
@@ -327,12 +351,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long incr(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.incr(key);
@@ -347,12 +373,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long incrBy(String key, long increment) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.incrBy(key, increment);
@@ -367,12 +395,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long decr(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.decr(key);
@@ -387,12 +417,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long decrBy(String key, long decrement) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.decrBy(key, decrement);
@@ -407,12 +439,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long lpush(String key, String... strings) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lpush(key, strings);
@@ -427,12 +461,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long rpush(String key, String... strings) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.rpush(key, strings);
@@ -447,12 +483,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long llen(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.llen(key);
@@ -467,12 +505,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public String lpop(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lpop(key);
@@ -487,12 +527,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public String rpop(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.rpop(key);
@@ -507,12 +549,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public List<String> lrange(String key, long start, long end) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lrange(key, start, end);
@@ -527,12 +571,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public List<String> lrangeAll(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lrange(key, 0, -1);
@@ -547,12 +593,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long hset(String key, String field, String value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hset(key, field, value);
@@ -567,12 +615,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long hsetnx(String key, String field, String value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hsetnx(key, field, value);
@@ -587,12 +637,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public String hmset(String key, Map<String, String> hash) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hmset(key, hash);
@@ -607,12 +659,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public String hget(String key, String field) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hget(key, field);
@@ -627,12 +681,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public List<String> hmget(final String key, final String... fields) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hmget(key, fields);
@@ -647,12 +703,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Boolean hexists(String key, String field) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hexists(key, field);
@@ -667,12 +725,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long hdel(String key, String... fields) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hdel(key, fields);
@@ -687,12 +747,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long hlen(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hlen(key);
@@ -707,12 +769,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Map<String, String> hgetAll(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hgetAll(key);
@@ -727,12 +791,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long sadd(String key, String... members) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.sadd(key, members);
@@ -747,12 +813,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Set<String> smembers(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.smembers(key);
@@ -767,12 +835,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long srem(String key, String... members) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.srem(key, members);
@@ -787,12 +857,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long scard(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.scard(key);
@@ -807,12 +879,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Set<String> sunion(String... keys) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.sunion(keys);
@@ -827,12 +901,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Set<String> sdiff(String... keys) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.sdiff(keys);
@@ -847,12 +923,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long sdiffstore(String dstkey, String... keys) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.sdiffstore(dstkey, keys);
@@ -867,12 +945,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public String set(byte[] key, byte[] value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.set(key, value);
@@ -887,12 +967,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public String setex(byte[] key, int seconds, byte[] value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.setex(key, seconds, value);
@@ -907,12 +989,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public byte[] get(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.get(key);
@@ -927,12 +1011,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long del(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.del(key);
@@ -947,12 +1033,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long del(byte[]... keys) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.del(keys);
@@ -967,12 +1055,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long expire(byte[] key, int seconds) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.expire(key, seconds);
@@ -987,13 +1077,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long expireAt(byte[] key, long seconds) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.expireAt(key, seconds);
@@ -1008,12 +1100,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long ttl(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.ttl(key);
@@ -1028,12 +1122,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public boolean exists(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.exists(key);
@@ -1048,12 +1144,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long incr(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.incr(key);
@@ -1068,12 +1166,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long incrBy(byte[] key, long increment) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.incrBy(key, increment);
@@ -1088,12 +1188,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long decr(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.decr(key);
@@ -1108,12 +1210,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long decrBy(byte[] key, long decrement) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.decrBy(key, decrement);
@@ -1128,12 +1232,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long lpush(byte[] key, byte[]... strings) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lpush(key, strings);
@@ -1148,12 +1254,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long rpush(byte[] key, byte[]... strings) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.rpush(key, strings);
@@ -1168,12 +1276,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long llen(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.llen(key);
@@ -1188,12 +1298,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public byte[] lpop(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lpop(key);
@@ -1208,12 +1320,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public byte[] rpop(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.rpop(key);
@@ -1228,12 +1342,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public List<byte[]> lrange(byte[] key, long start, long end) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lrange(key, start, end);
@@ -1248,12 +1364,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public List<byte[]> lrangeAll(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lrange(key, 0, -1);
@@ -1268,12 +1386,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long hset(byte[] key, byte[] field, byte[] value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hset(key, field, value);
@@ -1288,12 +1408,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long hsetnx(byte[] key, byte[] field, byte[] value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hsetnx(key, field, value);
@@ -1308,13 +1430,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long setnx(byte[] key, byte[] value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.setnx(key, value);
@@ -1329,8 +1453,10 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
@@ -1339,7 +1465,7 @@ public class CacheSentinelClient implements ICacheClient {
 	}
 
 	public String hmset(byte[] key, Map<byte[], byte[]> hash) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hmset(key, hash);
@@ -1354,12 +1480,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public byte[] hget(byte[] key, byte[] field) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hget(key, field);
@@ -1374,12 +1502,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public List<byte[]> hmget(final byte[] key, final byte[]... fields) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hmget(key, fields);
@@ -1394,12 +1524,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Boolean hexists(byte[] key, byte[] field) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hexists(key, field);
@@ -1414,12 +1546,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long hdel(byte[] key, byte[]... fields) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hdel(key, fields);
@@ -1434,12 +1568,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long hlen(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hlen(key);
@@ -1454,12 +1590,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Map<byte[], byte[]> hgetAll(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hgetAll(key);
@@ -1474,12 +1612,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long sadd(byte[] key, byte[]... members) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.sadd(key, members);
@@ -1494,12 +1634,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Set<byte[]> smembers(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.smembers(key);
@@ -1514,12 +1656,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long srem(byte[] key, byte[]... members) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.srem(key, members);
@@ -1534,12 +1678,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long scard(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.scard(key);
@@ -1554,12 +1700,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Set<byte[]> sunion(byte[]... keys) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.sunion(keys);
@@ -1574,12 +1722,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Set<byte[]> sdiff(byte[]... keys) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.sdiff(keys);
@@ -1594,12 +1744,14 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	public Long sdiffstore(byte[] dstkey, byte[]... keys) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.sdiffstore(dstkey, keys);
@@ -1614,13 +1766,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long lrem(String key, long count, String value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lrem(key, count, value);
@@ -1635,13 +1789,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long lrem(byte[] key, long count, byte[] value) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.lrem(key, count, value);
@@ -1656,13 +1812,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zadd(String key, double score, String member) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zadd(key, score, member);
@@ -1677,13 +1835,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zadd(final String key, final double score, final String member, final ZAddParams params) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zadd(key, score, member, params);
@@ -1698,13 +1858,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zadd(String key, Map<String, Double> scoreMembers) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zadd(key, scoreMembers);
@@ -1719,13 +1881,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zadd(final String key, final Map<String, Double> scoreMembers, final ZAddParams params) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zadd(key, scoreMembers, params);
@@ -1740,13 +1904,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zcount(final String key, final double min, final double max) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zcount(key, min, max);
@@ -1761,13 +1927,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zcount(final String key, final String min, final String max) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zcount(key, min, max);
@@ -1782,13 +1950,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Double zincrby(final String key, final double score, final String member) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zincrby(key, score, member);
@@ -1803,13 +1973,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Double zincrby(String key, double score, String member, ZIncrByParams params) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zincrby(key, score, member, params);
@@ -1824,13 +1996,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<String> zrange(final String key, final long start, final long end) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrange(key, start, end);
@@ -1845,13 +2019,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<String> zrangeByScore(final String key, final double min, final double max) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrangeByScore(key, min, max);
@@ -1866,13 +2042,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<String> zrangeByScore(final String key, final String min, final String max) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrangeByScore(key, min, max);
@@ -1887,14 +2065,16 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<String> zrangeByScore(final String key, final double min, final double max, final int offset,
 			int count) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrangeByScore(key, min, max, offset, count);
@@ -1909,13 +2089,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<String> zrevrange(final String key, final long start, final long end) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrevrange(key, start, end);
@@ -1930,13 +2112,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<String> zrevrangeByScore(final String key, final double max, final double min) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrevrangeByScore(key, max, min);
@@ -1951,13 +2135,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<String> zrevrangeByScore(final String key, final String max, final String min) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrevrangeByScore(key, max, min);
@@ -1972,14 +2158,16 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<String> zrevrangeByScore(final String key, final double max, final double min, final int offset,
 			int count) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrevrangeByScore(key, max, min, offset, count);
@@ -1994,13 +2182,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zrevrank(final String key, final String member) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrevrank(key, member);
@@ -2015,13 +2205,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zrem(final String key, final String... member) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zrem(key, member);
@@ -2036,13 +2228,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zremrangeByRank(final String key, final long start, final long end) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zremrangeByRank(key, start, end);
@@ -2057,13 +2251,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zremrangeByScore(final String key, final double start, final double end) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zremrangeByScore(key, start, end);
@@ -2078,13 +2274,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long zremrangeByScore(final String key, final String start, final String end) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.zremrangeByScore(key, start, end);
@@ -2099,13 +2297,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Long publish(final String channel, final String message) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.publish(channel, message);
@@ -2120,13 +2320,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public void subscribe(final JedisPubSub jedisPubSub, final String... channels) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			jedis.subscribe(jedisPubSub, channels);
@@ -2141,13 +2343,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public void psubscribe(final JedisPubSub jedisPubSub, final String... patterns) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			jedis.psubscribe(jedisPubSub, patterns);
@@ -2162,8 +2366,10 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
@@ -2178,7 +2384,7 @@ public class CacheSentinelClient implements ICacheClient {
 
 	@Override
 	public Set<String> hkeys(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hkeys(key);
@@ -2193,13 +2399,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public List<String> hvals(String key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hvals(key);
@@ -2214,13 +2422,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<byte[]> hkeys(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hkeys(key);
@@ -2235,13 +2445,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public List<byte[]> hvals(byte[] key) {
-
+		Jedis jedis = null;
 		try {
 			jedis = getJedis();
 			return jedis.hvals(key);
@@ -2256,13 +2468,15 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
 	}
 
 	@Override
 	public Set<String> keys(String pattern) {
-
+		Jedis jedis = null;
 		try {
 			if (StringUtil.isBlank(pattern))
 				return null;
@@ -2281,21 +2495,22 @@ public class CacheSentinelClient implements ICacheClient {
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (jedis != null)
+				returnResource(jedis);
 		}
-
-	}
-
-	public static void main(String[] args) {
-		ICacheClient client = new CacheSentinelClient(new GenericObjectPoolConfig(),
-				"10.1.235.23:26379,10.1.235.22:26379,10.1.235.24:26379", "");
-		client.set("dxf", "1234567");
-		System.out.println(client.get("dxf"));
 	}
 
 	@Override
 	public Transaction startTransaction() {
+		Jedis jedis = null;
 		try {
-			jedis = getJedis();
+			jedis = JedisContextHolder.getJedis();
+			if (null == jedis) {
+				jedis = getJedis();
+				JedisContextHolder.setJedis(jedis);
+			}
+			// 先存下来
 			return jedis.multi();
 		} catch (JedisConnectionException jedisConnectionException) {
 			createPool();
@@ -2317,16 +2532,19 @@ public class CacheSentinelClient implements ICacheClient {
 		try {
 			tx.exec();
 		} catch (JedisConnectionException jedisConnectionException) {
-			createPool();
-			if (canConnection()) {
-				commitTransaction(tx);
-			} else {
-				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
-				throw new CacheClientException(jedisConnectionException);
-			}
+			log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+			throw new CacheClientException(jedisConnectionException);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (null != tx)
+				try {
+					tx.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
+			JedisContextHolder.clean();
 		}
 	}
 
@@ -2336,32 +2554,35 @@ public class CacheSentinelClient implements ICacheClient {
 		try {
 			tx.discard();
 		} catch (JedisConnectionException jedisConnectionException) {
-			createPool();
-			if (canConnection()) {
-				rollbackTransaction(tx);
-			} else {
-				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
-				throw new CacheClientException(jedisConnectionException);
-			}
+			log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+			throw new CacheClientException(jedisConnectionException);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			if (null != tx)
+				try {
+					tx.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
+			JedisContextHolder.clean();
 		}
 	}
 
 	@Override
-	public void watch(String[] keys) {
+	public void watch(String... keys) {
+		Jedis jedis = null;
 		try {
-			jedis = getJedis();
+			jedis = JedisContextHolder.getJedis();
+			if (null == jedis) {
+				jedis = getJedis();
+				JedisContextHolder.setJedis(jedis);
+			}
 			jedis.watch(keys);
 		} catch (JedisConnectionException jedisConnectionException) {
-			createPool();
-			if (canConnection()) {
-				watch(keys);
-			} else {
-				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
-				throw new CacheClientException(jedisConnectionException);
-			}
+			log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+			throw new CacheClientException(jedisConnectionException);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
@@ -2370,29 +2591,31 @@ public class CacheSentinelClient implements ICacheClient {
 
 	@Override
 	public void unwatch() {
+		Jedis jedis = null;
 		try {
-			jedis = getJedis();
-			jedis.unwatch();
+			jedis = JedisContextHolder.getJedis();
+			if (null != jedis)
+				jedis.unwatch();
 		} catch (JedisConnectionException jedisConnectionException) {
-			createPool();
-			if (canConnection()) {
-				unwatch();
-			} else {
-				log.error(jedisConnectionException.getMessage(), jedisConnectionException);
-				throw new CacheClientException(jedisConnectionException);
-			}
+			log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+			throw new CacheClientException(jedisConnectionException);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new CacheClientException(e);
+		} finally {
+			JedisContextHolder.clean();
 		}
-
 	}
 
 	@Override
 	public void close() {
-		if (null != jedis) {
-			jedis.close();
-		}
 		destroyPool();
+	}
+
+	public static void main(String[] args) {
+		ICacheClient client = new CacheSentinelClient(new GenericObjectPoolConfig(),
+				"10.1.235.23:26379,10.1.235.22:26379,10.1.235.24:26379", "");
+		client.set("dxf", "1234567");
+		System.out.println(client.get("dxf"));
 	}
 }
