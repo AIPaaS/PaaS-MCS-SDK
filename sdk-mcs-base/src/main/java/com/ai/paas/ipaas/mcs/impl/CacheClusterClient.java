@@ -37,10 +37,12 @@ public class CacheClusterClient implements ICacheClient {
 	public CacheClusterClient(GenericObjectPoolConfig config, String[] hosts) {
 		this.config = config;
 		this.hosts = hosts;
+		getCluster();
 	}
 
 	public CacheClusterClient(GenericObjectPoolConfig config, String[] hosts, String pwd) {
-		this(config, hosts);
+		this.config = config;
+		this.hosts = hosts;
 		if (!StringUtil.isBlank(pwd)) {
 			this.pwd = pwd;
 			isRedisNeedAuth = true;
