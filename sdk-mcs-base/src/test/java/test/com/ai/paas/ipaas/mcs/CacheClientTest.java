@@ -44,7 +44,10 @@ public class CacheClientTest {
 
 	@Test
 	public void testKeys() {
-		Set<String> keys = client.keys("dxf*");
+		client.del("dxf");
+		client.del("aaa");
+		client.set("aaa1", "123456");
+		Set<String> keys = client.keys("aaa*");
 		System.out.println(keys);
 		assertEquals(1, keys.size());
 	}
@@ -52,10 +55,6 @@ public class CacheClientTest {
 	@Test
 	public void testSetStringString() {
 		client.set("123", "123456");
-		for(int i=1;i<100000;i++){
-			client.set("dxf"+i, "1234567"+i);
-			client.get("dxf"+i);
-		}
 		assertEquals("123456", client.get("123"));
 		client.del("123");
 	}
@@ -246,11 +245,13 @@ public class CacheClientTest {
 
 	@Test
 	public void testHmsetStringMapOfStringString() {
+		client.del("firset");
 		Map<String, String> map = new HashMap<>();
 		map.put("second", "123456");
 		map.put("third", "12345678");
 		client.hmset("firset", map);
 		assertTrue("12345678".equals(client.hget("first", "third")));
+		client.del("firset");
 	}
 
 	@Test
@@ -575,97 +576,208 @@ public class CacheClientTest {
 
 	@Test
 	public void testSetnxByteArrayByteArray() {
-		fail("Not yet implemented");
+		client.set("dxf", "123456");
+		client.setnx("dxf".getBytes(), "12345678".getBytes());
+		assertTrue("123456".equals(client.get("dxf")));
+		client.del("dxf");
+		client.setnx("dxf".getBytes(), "12345678".getBytes());
+		assertTrue("12345678".equals(client.get("dxf")));
+		client.del("dxf");
 	}
 
 	@Test
 	public void testSetnxStringString() {
-		fail("Not yet implemented");
+		client.set("dxf", "123456");
+		client.setnx("dxf", "12345678");
+		assertTrue("123456".equals(client.get("dxf")));
+		client.del("dxf");
+		client.setnx("dxf", "12345678");
+		assertTrue("12345678".equals(client.get("dxf")));
+		client.del("dxf");
 	}
 
 	@Test
 	public void testHmsetByteArrayMapOfbytebyte() {
-		fail("Not yet implemented");
+		Map<byte[], byte[]> map = new HashMap<>();
+		map.put("one".getBytes(), "123456".getBytes());
+		map.put("two".getBytes(), "123".getBytes());
+		client.hmset("dxf".getBytes(), map);
+		assertTrue("123456".equals(client.hmget("dxf", "one").get(0)));
+		client.del("dxf");
 	}
 
 	@Test
 	public void testHgetByteArrayByteArray() {
-		fail("Not yet implemented");
+		Map<String, String> map = new HashMap<>();
+		map.put("one", "123456");
+		map.put("two", "123");
+		client.hmset("dxf", map);
+		assertTrue("123456".equals(client.hmget("dxf", "one").get(0)));
+		client.del("dxf");
 	}
 
 	@Test
 	public void testHmgetByteArrayByteArrayArray() {
-		fail("Not yet implemented");
+		Map<byte[], byte[]> map = new HashMap<>();
+		map.put("one".getBytes(), "123456".getBytes());
+		map.put("two".getBytes(), "123".getBytes());
+		client.hmset("dxf".getBytes(), map);
+		assertTrue("123456".equals(new String(client.hmget("dxf".getBytes(), "one".getBytes()).get(0))));
+		client.del("dxf");
 	}
 
 	@Test
 	public void testHexistsByteArrayByteArray() {
-		fail("Not yet implemented");
+		Map<byte[], byte[]> map = new HashMap<>();
+		map.put("one".getBytes(), "123456".getBytes());
+		map.put("two".getBytes(), "123".getBytes());
+		client.hmset("dxf".getBytes(), map);
+		assertTrue(client.hexists("dxf".getBytes(), "two".getBytes()));
+		client.del("dxf");
 	}
 
 	@Test
 	public void testHdelByteArrayByteArrayArray() {
-		fail("Not yet implemented");
+		Map<byte[], byte[]> map = new HashMap<>();
+		map.put("one".getBytes(), "123456".getBytes());
+		map.put("two".getBytes(), "123".getBytes());
+		client.hmset("dxf".getBytes(), map);
+		client.hdel("dxf".getBytes(), "one".getBytes());
+		assertTrue(!client.hexists("dxf".getBytes(), "one".getBytes()));
+		client.del("dxf");
 	}
 
 	@Test
 	public void testHlenByteArray() {
-		fail("Not yet implemented");
+		Map<byte[], byte[]> map = new HashMap<>();
+		map.put("one".getBytes(), "123456".getBytes());
+		map.put("two".getBytes(), "123".getBytes());
+		client.hmset("dxf".getBytes(), map);
+		Long count = client.hlen("dxf".getBytes());
+		assertTrue(2 == count);
+		client.del("dxf");
 	}
 
 	@Test
 	public void testHgetAllByteArray() {
-		fail("Not yet implemented");
+		Map<byte[], byte[]> map = new HashMap<>();
+		map.put("one".getBytes(), "123456".getBytes());
+		map.put("two".getBytes(), "123".getBytes());
+		client.hmset("dxf".getBytes(), map);
+		map = client.hgetAll("dxf".getBytes());
+		assertTrue(2 == map.size());
+		client.del("dxf");
 	}
 
 	@Test
 	public void testSaddByteArrayByteArrayArray() {
-		fail("Not yet implemented");
+		byte[] members1 = "123456".getBytes();
+		byte[] members2 = "123".getBytes();
+		client.sadd("dxf".getBytes(), members1, members2);
+		assertTrue(2 == client.smembers("dxf".getBytes()).size());
+		client.del("dxf");
 	}
 
 	@Test
 	public void testSmembersByteArray() {
-		fail("Not yet implemented");
+		byte[] members1 = "123456".getBytes();
+		byte[] members2 = "123".getBytes();
+		client.sadd("dxf".getBytes(), members1, members2);
+		Set<byte[]> sets = client.smembers("dxf".getBytes());
+		assertTrue(2 == sets.size());
+		client.del("dxf");
 	}
 
 	@Test
 	public void testSremByteArrayByteArrayArray() {
-		fail("Not yet implemented");
+		byte[] members1 = "123456".getBytes();
+		byte[] members2 = "123".getBytes();
+		client.sadd("dxf".getBytes(), members1, members2);
+		client.srem("dxf".getBytes(), members1);
+		assertTrue(1 == client.smembers("dxf".getBytes()).size());
+		client.del("dxf");
 	}
 
 	@Test
 	public void testScardByteArray() {
-		fail("Not yet implemented");
+		byte[] members1 = "123456".getBytes();
+		byte[] members2 = "123".getBytes();
+		client.sadd("dxf".getBytes(), members1, members2);
+		Long count = client.scard("dxf".getBytes());
+		assertTrue(2 == count);
+		client.del("dxf");
 	}
 
 	@Test
 	public void testSunionByteArrayArray() {
-		fail("Not yet implemented");
+		byte[] members1 = "123".getBytes();
+		byte[] members2 = "1234".getBytes();
+		client.sadd("dxf".getBytes(), members1, members2);
+		byte[] members3 = "12345".getBytes();
+		byte[] members4 = "123456".getBytes();
+		client.del("dxf1");
+		client.sadd("dxf1".getBytes(), members3, members4);
+		Set<byte[]> sets = client.sunion("dxf1".getBytes(), "dxf".getBytes());
+		assertTrue(4 == sets.size());
+		client.del("dxf");
+		client.del("dxf1");
 	}
 
 	@Test
 	public void testSdiffByteArrayArray() {
-		fail("Not yet implemented");
+		byte[] members1 = "123".getBytes();
+		byte[] members2 = "1234".getBytes();
+		client.sadd("dxf".getBytes(), members1, members2);
+		byte[] members3 = "123".getBytes();
+		byte[] members4 = "123456".getBytes();
+		client.del("dxf1");
+		client.sadd("dxf1".getBytes(), members3, members4);
+		Set<byte[]> sets = client.sdiff("dxf".getBytes(), "dxf1".getBytes());
+		assertTrue(1 == sets.size());
+		client.del("dxf");
+		client.del("dxf1");
 	}
 
 	@Test
 	public void testSdiffstoreByteArrayByteArrayArray() {
-		fail("Not yet implemented");
+		byte[] members1 = "123".getBytes();
+		byte[] members2 = "1234".getBytes();
+		client.sadd("dxf".getBytes(), members1, members2);
+		byte[] members3 = "123".getBytes();
+		byte[] members4 = "123456".getBytes();
+		client.del("dxf1");
+		client.sadd("dxf1".getBytes(), members3, members4);
+		Long count = client.sdiffstore("sets".getBytes(), "dxf".getBytes(), "dxf1".getBytes());
+		assertTrue(1 == count);
+		client.del("dxf");
+		client.del("dxf1");
 	}
 
 	@Test
 	public void testHincrBy() {
-		fail("Not yet implemented");
+		client.del("dxf");
+		client.hset("dxf", "key1", "123");
+		long value = client.hincrBy("dxf", "key1", 1);
+		assertTrue(124 == value);
+		client.del("dxf");
 	}
 
 	@Test
 	public void testIncrByFloat() {
-		fail("Not yet implemented");
+		client.del("dxf");
+		client.set("dxf", "123");
+		double value = client.incrByFloat("dxf", 1.1D);
+		assertTrue(124.1 == value);
+		client.del("dxf");
 	}
 
 	@Test
 	public void testHincrByFloat() {
-		fail("Not yet implemented");
+		client.del("dxf");
+		client.hset("dxf", "key1", "123");
+		double value = client.hincrByFloat("dxf", "key1", 1.1D);
+		assertTrue(124.1 == value);
+		client.del("dxf");
 	}
 
 }

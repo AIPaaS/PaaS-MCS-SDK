@@ -33,7 +33,6 @@ public class CacheSentinelClient implements ICacheClient {
 	@SuppressWarnings("unused")
 	private final String preKey = CacheHelper.preKey();
 	private String pwd;
-	@SuppressWarnings("unused")
 	private boolean isRedisNeedAuth = false;
 
 	public CacheSentinelClient(GenericObjectPoolConfig config, String host) {
@@ -60,7 +59,10 @@ public class CacheSentinelClient implements ICacheClient {
 					config.setMaxWaitMillis(20000);
 
 				Set<String> sentinels = new HashSet<String>(Arrays.asList(host.split(";|,")));
-				pool = new JedisSentinelPool("mymaster", sentinels, config, TIMEOUT_KEY, pwd);
+				if (isRedisNeedAuth)
+					pool = new JedisSentinelPool("mymaster", sentinels, config, TIMEOUT_KEY, pwd);
+				else
+					pool = new JedisSentinelPool("mymaster", sentinels, config, TIMEOUT_KEY);
 				if (canConnection())
 					log.info("Redis Server Info:" + host);
 				log.info("Create JedisPool Done ...");

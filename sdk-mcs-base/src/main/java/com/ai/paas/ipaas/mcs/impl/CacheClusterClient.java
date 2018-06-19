@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import com.ai.paas.ipaas.mcs.exception.CacheClientException;
 import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+import com.ai.paas.ipaas.util.StringUtil;
 
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
@@ -29,10 +30,8 @@ public class CacheClusterClient implements ICacheClient {
 	private String[] hosts;
 	@SuppressWarnings("unused")
 	private final String preKey = CacheHelper.preKey();
-	@SuppressWarnings("unused")
 	private String pwd;
 	private JedisCluster jc;
-	@SuppressWarnings("unused")
 	private boolean isRedisNeedAuth = false;
 
 	public CacheClusterClient(GenericObjectPoolConfig config, String[] hosts) {
@@ -42,9 +41,13 @@ public class CacheClusterClient implements ICacheClient {
 
 	public CacheClusterClient(GenericObjectPoolConfig config, String[] hosts, String pwd) {
 		this(config, hosts);
-		this.pwd = pwd;
+		if (!StringUtil.isBlank(pwd)) {
+			this.pwd = pwd;
+			isRedisNeedAuth = true;
+		}
+
 		getCluster();
-		isRedisNeedAuth = true;
+
 	}
 
 	private void getCluster() {
@@ -58,7 +61,10 @@ public class CacheClusterClient implements ICacheClient {
 			}
 			if (config.getMaxWaitMillis() < 20000)
 				config.setMaxWaitMillis(20000);
-			jc = new JedisCluster(jedisClusterNodes, 20000, config);
+			if (isRedisNeedAuth)
+				jc = new JedisCluster(jedisClusterNodes, 20000, 20000, 20000, pwd, config);
+			else
+				jc = new JedisCluster(jedisClusterNodes, 20000, 20000, config);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
@@ -2020,7 +2026,7 @@ public class CacheClusterClient implements ICacheClient {
 	}
 
 	@Override
-	public void watch(String[] keys) {
+	public void watch(String... keys) {
 		throw new CacheClientException("unsupported feature!");
 	}
 
