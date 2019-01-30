@@ -21,7 +21,7 @@ public class CacheSentinelClientTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-		String host = "10.1.235.23:26379";
+		String host = "10.19.10.84:56379";
 		client = new CacheSentinelClient(config, host, "asc123");
 	}
 
@@ -45,7 +45,10 @@ public class CacheSentinelClientTest {
 
 	@Test
 	public void test() {
-		fail("Not yet implemented");
+		client.set("dxf", "123456");
+		client.set("123456", "dxf");
+		assertTrue("123456".equals(client.get("dxf")));
+		assertTrue("dxf".equals(client.get("123456")));
 	}
 
 }

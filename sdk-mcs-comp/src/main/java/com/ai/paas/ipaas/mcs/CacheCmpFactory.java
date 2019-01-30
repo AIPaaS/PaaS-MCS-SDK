@@ -53,8 +53,8 @@ public class CacheCmpFactory {
 		String key = mode.hashCode() + "-" + host.hashCode();
 
 		ICacheClient cacheClient = null;
-		if (null != cacheClients.get(host)) {
-			return cacheClients.get(host);
+		if (null != cacheClients.get(key)) {
+			return cacheClients.get(key);
 		}
 		// add codis support
 		switch (mode) {
