@@ -4,7 +4,7 @@ allprojects{
     apply plugin: 'maven-publish'
 
     ext {
-		moduleVersion = version != "unspecified"?version:'0.4.1'
+		moduleVersion = version != "unspecified"?version:'0.4.2'
 		moduleMode = project.hasProperty('mode') ? project.getProperty('mode') : 'R'
 		if(moduleMode == 'S'){
 			moduleVersion = moduleVersion + "-SNAPSHOT";
