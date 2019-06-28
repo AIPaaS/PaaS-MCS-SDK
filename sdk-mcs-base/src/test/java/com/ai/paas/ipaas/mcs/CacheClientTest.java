@@ -1,6 +1,9 @@
-package test.com.ai.paas.ipaas.mcs;
+package com.ai.paas.ipaas.mcs;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -11,36 +14,22 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.ai.paas.ipaas.mcs.impl.CacheClient;
-import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
 
 public class CacheClientTest {
 	private static ICacheClient client = null;
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+	@SuppressWarnings("rawtypes")
+    @BeforeClass
+	public static void setUpBeforeClass()  {
 		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
 		String host = "10.15.16.130:9801";
 		client = new CacheClient(config, host, "asc123");
 	}
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
 
 	@Test
 	public void testKeys() {
@@ -48,7 +37,6 @@ public class CacheClientTest {
 		client.del("aaa");
 		client.set("aaa1", "123456");
 		Set<String> keys = client.keys("aaa*");
-		System.out.println(keys);
 		assertEquals(1, keys.size());
 	}
 
@@ -60,7 +48,7 @@ public class CacheClientTest {
 	}
 
 	@Test
-	public void testSetexStringIntString() throws Exception {
+    public void testSetexStringIntString() throws InterruptedException {
 		client.setex("dxf", 10, "123456");
 		assertEquals("123456", client.get("dxf"));
 		Thread.sleep(12000);
@@ -76,11 +64,9 @@ public class CacheClientTest {
 
 	@Test
 	public void testDelString() {
-		// for(int i=0;i<100;i++){
 		client.set("123", "123456");
 		client.del("123");
 		assertNotEquals("123456", client.get("123"));
-		// }
 	}
 
 	@Test
@@ -94,21 +80,17 @@ public class CacheClientTest {
 	}
 
 	@Test
-	public void testExpireStringInt() throws Exception {
+    public void testExpireStringInt() throws InterruptedException  {
 		client.set("dxf", "123456");
 		Date d = Calendar.getInstance(Locale.CHINA).getTime();
-		System.out.println(d.getTime());
 		client.expireAt("dxf", d.getTime() / 1000 + 10);
-		System.out.println(client.ttl("dxf"));
-		System.out.println(d);
 		d.setTime(1524395546879L);
-		System.out.println(d);
 		Thread.sleep(12000);
 		assertNotEquals("123456", client.get("dxf"));
 	}
 
 	@Test
-	public void testExpireAtStringLong() throws Exception {
+	public void testExpireAtStringLong() throws InterruptedException {
 		client.set("dxf", "123456");
 		client.expire("dxf", 10);
 		Thread.sleep(12000);
@@ -227,7 +209,7 @@ public class CacheClientTest {
 
 	@Test
 	public void testHsetStringStringString() {
-		client.hset("first", "second", "123456");
+        client.hset("first", "second", "123456");
 		assertTrue("123456".equals(client.hget("first", "second")));
 		client.del("first");
 	}
@@ -250,7 +232,7 @@ public class CacheClientTest {
 		map.put("second", "123456");
 		map.put("third", "12345678");
 		client.hmset("firset", map);
-		assertTrue("12345678".equals(client.hget("first", "third")));
+		assertTrue("12345678".equals(client.hget("firset", "third")));
 		client.del("firset");
 	}
 
@@ -641,10 +623,10 @@ public class CacheClientTest {
 		Map<byte[], byte[]> map = new HashMap<>();
 		map.put("one".getBytes(), "123456".getBytes());
 		map.put("two".getBytes(), "123".getBytes());
-		client.hmset("dxf".getBytes(), map);
-		client.hdel("dxf".getBytes(), "one".getBytes());
-		assertTrue(!client.hexists("dxf".getBytes(), "one".getBytes()));
-		client.del("dxf");
+		client.hmset("dxfmap".getBytes(), map);
+		client.hdel("dxfmap".getBytes(), "one".getBytes());
+		assertTrue(!client.hexists("dxfmap".getBytes(), "one".getBytes()));
+		client.del("dxfmap");
 	}
 
 	@Test
@@ -652,10 +634,10 @@ public class CacheClientTest {
 		Map<byte[], byte[]> map = new HashMap<>();
 		map.put("one".getBytes(), "123456".getBytes());
 		map.put("two".getBytes(), "123".getBytes());
-		client.hmset("dxf".getBytes(), map);
-		Long count = client.hlen("dxf".getBytes());
+		client.hmset("dxfmaplen".getBytes(), map);
+		Long count = client.hlen("dxfmaplen".getBytes());
 		assertTrue(2 == count);
-		client.del("dxf");
+		client.del("dxfmaplen");
 	}
 
 	@Test

@@ -1,8 +1,8 @@
 package com.ai.paas.ipaas.mcs.exception;
 
-import com.ai.paas.ipaas.PaasRuntimeException;
+import com.ai.paas.GeneralRuntimeException;
 
-public class CacheClientException extends PaasRuntimeException {
+public class CacheException extends GeneralRuntimeException {
 
     /**
      *
@@ -11,11 +11,11 @@ public class CacheClientException extends PaasRuntimeException {
 
     private static final String MCS_MSG = "MCS RUNTIME ERROR";
 
-    public CacheClientException(Exception ex) {
+    public CacheException(Exception ex) {
         super(MCS_MSG, ex);
     }
 
-    public CacheClientException(String message) {
+    public CacheException(String message) {
         super(message);
     }
 }

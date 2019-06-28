@@ -1,83 +1,47 @@
 dependencies{
-	compile 'redis.clients:jedis:2.9.0'
-	compile 'org.apache.commons:commons-pool2:2.4.2'
-	compile 'org.apache.logging.log4j:log4j-api:2.2'
+	// https://mvnrepository.com/artifact/redis.clients/jedis
+	compile group: 'redis.clients', name: 'jedis', version: '3.0.1'
+	
+	compile 'org.apache.commons:commons-pool2:2.6.2'
+	compile 'org.apache.logging.log4j:log4j-api:2.11.2'
 	compile 'com.ai:ipaas-uac:0.3'
-	compile 'io.codis.jodis:jodis:0.3.0'
+	compile 'io.codis.jodis:jodis:0.5.1'
 }
 
 publishing {
 	publications {
-	    mavenJar(MavenPublication) {
-        	groupId group
-        	artifactId "${moduleName}"
-            artifact sourcesJar
-            version moduleVersion
-            pom.withXml {
-				asNode().children().last() + {
-					delegate.dependencies {
-						delegate.dependency {
-							delegate.groupId("com.ai")
-							delegate.artifactId("ipaas-common")
-							delegate.version("0.3")
-						}
-						delegate.dependency {
-							delegate.groupId("redis.clients")
-							delegate.artifactId("jedis")
-							delegate.version("2.9.0")
-						}
-						delegate.dependency {
-							delegate.groupId("org.apache.commons")
-							delegate.artifactId("commons-pool2")
-							delegate.version("2.4.2")
-						}
-						delegate.dependency {
-							delegate.groupId("org.apache.logging.log4j")
-							delegate.artifactId("log4j-api")
-							delegate.version("2.2")
-						}
-						delegate.dependency {
-							delegate.groupId("io.codis.jodis")
-							delegate.artifactId("jodis")
-							delegate.version("0.3.0")
-						}
-					}
-				}
-			}
-		}
-		
 		publishing.publications.create("${moduleName}", MavenPublication) {
 			groupId group
 			artifactId moduleName
 			version moduleVersion
 			artifact  jar
+
+			artifact (sourcesJar) { classifier "sources" }
+
 			pom.withXml {
-				asNode().children().last() + {
-					delegate.dependencies {
-						delegate.dependency {
-							delegate.groupId("com.ai")
-							delegate.artifactId("ipaas-common")
-							delegate.version("0.3")
-						}
-						delegate.dependency {
-							delegate.groupId("redis.clients")
-							delegate.artifactId("jedis")
-							delegate.version("2.9.0")
-						}
-						delegate.dependency {
-							delegate.groupId("org.apache.commons")
-							delegate.artifactId("commons-pool2")
-							delegate.version("2.4.2")
-						}
-						delegate.dependency {
-							delegate.groupId("org.apache.logging.log4j")
-							delegate.artifactId("log4j-api")
-							delegate.version("2.2")
-						}
-						delegate.dependency {
-							delegate.groupId("io.codis.jodis")
-							delegate.artifactId("jodis")
-							delegate.version("0.3.0")
+				//Creating additional node for dependencies
+				def dependenciesNode = asNode().appendNode('dependencies')
+
+				//Defining configuration names from which dependencies will be taken (debugCompile or releaseCompile and compile)
+				def configurationNames = ['compile']
+
+				configurationNames.each { configurationName ->
+					configurations[configurationName].allDependencies.each {
+						if (it.group != null && it.name != null) {
+							def dependencyNode = dependenciesNode.appendNode('dependency')
+							dependencyNode.appendNode('groupId', it.group)
+							dependencyNode.appendNode('artifactId', it.name)
+							dependencyNode.appendNode('version', it.version)
+
+							//If there are any exclusions in dependency
+							if (it.excludeRules.size() > 0) {
+								def exclusionsNode = dependencyNode.appendNode('exclusions')
+								it.excludeRules.each { rule ->
+									def exclusionNode = exclusionsNode.appendNode('exclusion')
+									exclusionNode.appendNode('groupId', rule.group)
+									exclusionNode.appendNode('artifactId', rule.module)
+								}
+							}
 						}
 					}
 				}
@@ -86,14 +50,14 @@ publishing {
 	}
 	repositories {
 		maven {
-			 if(moduleVersion.endsWith('-SNAPSHOT')) {
-                url publishSnapShotsURL
-            } else {
-                url publishReleaseURL
-            }
 			credentials {
-				username = publishUserName
-				password = publishUserPassword
+				username = repoUser
+				password = repoPassword
+			}
+			if(moduleVersion.endsWith('-SNAPSHOT')) {
+				url publishSnapShotsURL
+			} else {
+				url publishReleaseURL
 			}
 		}
 	}

@@ -4,7 +4,7 @@ allprojects{
     apply plugin: 'maven-publish'
 
     ext {
-		moduleVersion = version != "unspecified"?version:'0.4.2'
+		moduleVersion = version != "unspecified"?version:'1.0'
 		moduleMode = project.hasProperty('mode') ? project.getProperty('mode') : 'R'
 		if(moduleMode == 'S'){
 			moduleVersion = moduleVersion + "-SNAPSHOT";
@@ -33,13 +33,13 @@ subprojects{
     }
 
     dependencies{
-        compile 'com.ai:ipaas-common:0.3'
+        compile 'com.ai:ipaas-common:1.0'
         testCompile(
-                "org.springframework:spring-test:4.1.5.RELEASE",
+                "org.springframework:spring-test:5.1.8.RELEASE",
                 "junit:junit:4.11"
         )
 
-        testCompile  ('org.apache.jmeter:ApacheJMeter_junit:2.13'){
+        testCompile  ('org.apache.jmeter:ApacheJMeter_junit:5.1.1'){
             exclude group: 'commons-math3', module: 'commons-math3'
             exclude group: 'commons-pool2', module: 'commons-pool2'
 			exclude group: 'xerces', module: 'xercesImpl'

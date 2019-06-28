@@ -1,7 +1,7 @@
 package test.com.ai.paas.ipaas.mcs;
 
 import com.ai.paas.ipaas.mcs.CacheFactory;
-import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
+import com.ai.paas.ipaas.mcs.ICacheClient;
 import com.ai.paas.ipaas.uac.vo.AuthDescriptor;
 
 public class CacheClusterTest {

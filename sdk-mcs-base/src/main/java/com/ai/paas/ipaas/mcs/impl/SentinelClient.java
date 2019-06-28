@@ -1,53 +1,66 @@
 package com.ai.paas.ipaas.mcs.impl;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.UUID;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.LoggerFactory;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.JedisSentinelPool;
+import redis.clients.jedis.Transaction;
+import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.params.ZAddParams;
+import redis.clients.jedis.params.ZIncrByParams;
 
 import com.ai.paas.ipaas.mcs.ICacheClient;
 import com.ai.paas.ipaas.mcs.exception.CacheException;
 import com.ai.paas.util.Assert;
 import com.ai.paas.util.StringUtil;
 
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPubSub;
-import redis.clients.jedis.Transaction;
-import redis.clients.jedis.exceptions.JedisConnectionException;
-import redis.clients.jedis.params.ZAddParams;
-import redis.clients.jedis.params.ZIncrByParams;
-
-/**
- * redis的客户端实现
- */
-public class CacheClient implements ICacheClient {
+public class SentinelClient implements ICacheClient {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(CacheClient.class);
-    private JedisPool pool;
+    private JedisSentinelPool pool;
     @SuppressWarnings("rawtypes")
     private GenericObjectPoolConfig config;
-    private static final int TIMEOUT_KEY = 150000;
+    private static final int TIMEOUT_KEY = 15000;
     private String host;
     private String pwd;
     private boolean isRedisNeedAuth = false;
+    private String clusterName = "mymaster";
 
-    public CacheClient(@SuppressWarnings("rawtypes") GenericObjectPoolConfig config, String host) {
+    @SuppressWarnings("rawtypes")
+    public SentinelClient(GenericObjectPoolConfig config, String host) {
         this.config = config;
         this.host = host;
         createPool();
     }
 
-    public CacheClient(@SuppressWarnings("rawtypes") GenericObjectPoolConfig config, String host, String pwd) {
+    public SentinelClient(@SuppressWarnings("rawtypes") GenericObjectPoolConfig config, String host, String pwd) {
         this.config = config;
         this.host = host;
-        this.pwd = pwd;
-        if (!StringUtil.isBlank(pwd))
+        if (!StringUtil.isBlank(pwd)) {
+            this.pwd = pwd;
             isRedisNeedAuth = true;
+        }
+        createPool();
+    }
+
+    public SentinelClient(@SuppressWarnings("rawtypes") GenericObjectPoolConfig config, String clusterName, String host,
+            String pwd) {
+        this.config = config;
+        this.host = host;
+        this.clusterName = clusterName;
+        if (!StringUtil.isBlank(pwd)) {
+            this.pwd = pwd;
+            isRedisNeedAuth = true;
+        }
         createPool();
     }
 
@@ -55,17 +68,16 @@ public class CacheClient implements ICacheClient {
         if (!canConnection()) {
             log.info("Create JedisPool Begin ...");
             try {
-                String[] hostArr = host.split(":");
-                if (config.getMaxWaitMillis() < 15000)
-                    config.setMaxWaitMillis(15000);
-                log.info("Redis Server Info:{}", host);
-                if (isRedisNeedAuth) {
-                    pool = new JedisPool(config, hostArr[0], Integer.parseInt(hostArr[1]), TIMEOUT_KEY, pwd);
-                } else {
-                    pool = new JedisPool(config, hostArr[0], Integer.parseInt(hostArr[1]), TIMEOUT_KEY);
-                }
+                if (config.getMaxWaitMillis() < 20000)
+                    config.setMaxWaitMillis(20000);
+
+                Set<String> sentinels = new HashSet<>(Arrays.asList(host.split(";|,")));
+                if (isRedisNeedAuth)
+                    pool = new JedisSentinelPool(clusterName, sentinels, config, TIMEOUT_KEY, pwd);
+                else
+                    pool = new JedisSentinelPool(clusterName, sentinels, config, TIMEOUT_KEY);
                 if (canConnection())
-                    log.info("Can Redis Server Connect:" + true);
+                    log.info("Redis Server Info:{}", host);
                 log.info("Create JedisPool Done ...");
             } catch (Exception e) {
                 throw new CacheException(e);
@@ -87,6 +99,7 @@ public class CacheClient implements ICacheClient {
             jedis.connect();
             jedis.get("ok");
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -123,6 +136,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -145,6 +159,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -166,6 +181,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -173,7 +189,6 @@ public class CacheClient implements ICacheClient {
         }
     }
 
-    @Override
     public Long del(String key) {
         Jedis jedis = null;
         try {
@@ -188,6 +203,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -209,6 +225,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -231,6 +248,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -253,6 +271,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -274,6 +293,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -305,25 +325,7 @@ public class CacheClient implements ICacheClient {
 
     @Override
     public Long expireAt(String key, long seconds) {
-        Jedis jedis = null;
-        try {
-            jedis = getJedis();
-            return jedis.expireAt((key), seconds);
-        } catch (JedisConnectionException jedisConnectionException) {
-            createPool();
-            if (canConnection()) {
-                return expireAt(key, seconds);
-            } else {
-                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
-                throw new CacheException(jedisConnectionException);
-            }
-        } catch (Exception e) {
-
-            throw new CacheException(e);
-        } finally {
-            if (jedis != null)
-                returnResource(jedis);
-        }
+        return expireAt(key.getBytes(), seconds);
     }
 
     public Long ttl(String key) {
@@ -494,6 +496,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -537,6 +540,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -602,6 +606,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -733,6 +738,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -754,6 +760,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -775,6 +782,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -818,6 +826,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -971,6 +980,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -992,6 +1002,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1102,6 +1113,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1123,6 +1135,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1210,6 +1223,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1231,6 +1245,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1296,6 +1311,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1339,6 +1355,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1440,7 +1457,16 @@ public class CacheClient implements ICacheClient {
         try {
             jedis = getJedis();
             return jedis.setnx(key, value);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return setnx(key, value);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1511,6 +1537,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1576,6 +1603,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1597,6 +1625,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1662,6 +1691,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1727,6 +1757,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1794,6 +1825,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1816,6 +1848,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1930,6 +1963,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1952,6 +1986,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2113,6 +2148,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2251,6 +2287,7 @@ public class CacheClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2279,78 +2316,6 @@ public class CacheClient implements ICacheClient {
             if (jedis != null)
                 returnResource(jedis);
         }
-    }
-
-    @Override
-    public String acquireLock(String lockName, long acquireTimeoutInMS, long lockTimeoutInMS) {
-        Jedis jedis = null;
-        String retIdentifier = null;
-        try {
-            jedis = getJedis();
-            String identifier = UUID.randomUUID().toString();
-            String lockKey = "lock:" + lockName;
-            int lockExpire = (int) (lockTimeoutInMS / 1000);
-
-            long end = System.currentTimeMillis() + acquireTimeoutInMS;
-            while (System.currentTimeMillis() < end) {
-                if (jedis.setnx(lockKey, identifier) == 1) {
-                    jedis.expire(lockKey, lockExpire);
-                    retIdentifier = identifier;
-                }
-                if (jedis.ttl(lockKey) == -1) {
-                    jedis.expire(lockKey, lockExpire);
-                }
-
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        } catch (JedisConnectionException jedisConnectionException) {
-            throw new CacheException(jedisConnectionException);
-        } catch (Exception e) {
-
-            throw new CacheException(e);
-        } finally {
-            if (jedis != null)
-                returnResource(jedis);
-        }
-
-        return retIdentifier;
-    }
-
-    @Override
-    public boolean releaseLock(String lockName, String identifier) {
-        Jedis jedis = null;
-        String lockKey = "lock:" + lockName;
-        boolean retFlag = false;
-        try {
-            jedis = getJedis();
-            while (true) {
-                jedis.watch(lockKey);
-                if (identifier.equals(jedis.get(lockKey))) {
-                    Transaction trans = jedis.multi();
-                    trans.del(lockKey);
-                    List<Object> results = trans.exec();
-                    if (results == null) {
-                        continue;
-                    }
-                    retFlag = true;
-                }
-                jedis.unwatch();
-                break;
-            }
-        } catch (JedisConnectionException jedisConnectionException) {
-            throw new CacheException(jedisConnectionException);
-        } catch (Exception e) {
-
-            throw new CacheException(e);
-        } finally {
-            if (jedis != null)
-                returnResource(jedis);
-        }
-        return retFlag;
     }
 
     @Override
@@ -2420,6 +2385,16 @@ public class CacheClient implements ICacheClient {
             if (jedis != null)
                 returnResource(jedis);
         }
+    }
+
+    @Override
+    public String acquireLock(String lockName, long acquireTimeoutInMS, long lockTimeoutInMS) {
+        throw new CacheException("sentinel mode is no surpport lock.");
+    }
+
+    @Override
+    public boolean releaseLock(String lockName, String identifier) {
+        throw new CacheException("sentinel mode is no surpport lock.");
     }
 
     @Override
@@ -2528,7 +2503,7 @@ public class CacheClient implements ICacheClient {
         } catch (JedisConnectionException jedisConnectionException) {
             createPool();
             if (canConnection()) {
-                return jedis.keys(pattern);
+                return keys(pattern);
             } else {
                 log.error(jedisConnectionException.getMessage(), jedisConnectionException);
                 throw new CacheException(jedisConnectionException);
@@ -2612,7 +2587,6 @@ public class CacheClient implements ICacheClient {
         } catch (JedisConnectionException jedisConnectionException) {
             throw new CacheException(jedisConnectionException);
         } catch (Exception e) {
-
             throw new CacheException(e);
         }
     }
@@ -2627,7 +2601,6 @@ public class CacheClient implements ICacheClient {
         } catch (JedisConnectionException jedisConnectionException) {
             throw new CacheException(jedisConnectionException);
         } catch (Exception e) {
-
             throw new CacheException(e);
         } finally {
             JedisContextHolder.clean();
@@ -2637,5 +2610,13 @@ public class CacheClient implements ICacheClient {
     @Override
     public void close() {
         destroyPool();
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static void main(String[] args) {
+        ICacheClient client = new SentinelClient(new GenericObjectPoolConfig(),
+                "10.1.235.23:26379,10.1.235.22:26379,10.1.235.24:26379", "");
+        client.set("dxf", "1234567");
+        log.info(client.get("dxf"));
     }
 }

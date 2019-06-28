@@ -4,77 +4,69 @@ dependencies {
     compile 'com.ai:ipaas-ccs-inner:0.3'
 }
 
+jar {
+
+	println "Hello $moduleVersion"
+	exclude('log4j2.xml')
+	baseName moduleName
+	version moduleVersion
+	manifest {
+		attributes 'packageName': moduleName, 'Built-By': builtBy,'create-date': new Date().format('yyyy-MM-dd HH:mm:ss')
+	}
+}
 
 publishing {
-    publications {
-   	 	mavenJar(MavenPublication) {
-        	groupId group
-        	artifactId "${moduleName}"
-            artifact sourcesJar
-            version moduleVersion
-            pom.withXml {
-                asNode().children().last() + {
-                    delegate.dependencies {
-                        delegate.dependency {
-                            delegate.groupId("com.ai")
-                            delegate.artifactId("ipaas-uac")
-                            delegate.version("0.3")
-                        }
-                        delegate.dependency {
-                            delegate.groupId("com.ai")
-                            delegate.artifactId("ipaas-ccs-inner")
-                            delegate.version("0.3")
-                        }
-                        delegate.dependency {
-                            delegate.groupId("com.ai")
-                            delegate.artifactId("ipaas-mcs-base")
-                            delegate.version("0.4.2")
-                        }
-                    }
-                }
-            }
-        }
-            
-        publishing.publications.create("${moduleName}", MavenPublication) {
-            groupId group
-            artifactId moduleName
-            version moduleVersion
-            artifact jar
-            pom.withXml {
-                asNode().children().last() + {
-                    delegate.dependencies {
-                        delegate.dependency {
-                            delegate.groupId("com.ai")
-                            delegate.artifactId("ipaas-uac")
-                            delegate.version("0.3")
-                        }
-                        delegate.dependency {
-                            delegate.groupId("com.ai")
-                            delegate.artifactId("ipaas-ccs-inner")
-                            delegate.version("0.3")
-                        }
-                        delegate.dependency {
-                            delegate.groupId("com.ai")
-                            delegate.artifactId("ipaas-mcs-base")
-                            delegate.version("0.4.2")
-                        }
-                    }
-                }
-            }
-        }
-    }
-    repositories {
-        maven {
-            if(moduleVersion.endsWith('-SNAPSHOT')) {
-                url publishSnapShotsURL
-            } else {
-                url publishReleaseURL
-            }
-            credentials {
-                username = publishUserName
-                password = publishUserPassword
-            }
-        }
-    }
+	publications {
+		publishing.publications.create("${moduleName}", MavenPublication) {
+			groupId group
+			artifactId moduleName
+			version moduleVersion
+			artifact  jar
+
+			artifact (sourcesJar) { classifier "sources" }
+
+			pom.withXml {
+				//Creating additional node for dependencies
+				def dependenciesNode = asNode().appendNode('dependencies')
+
+				//Defining configuration names from which dependencies will be taken (debugCompile or releaseCompile and compile)
+				def configurationNames = ['compile']
+
+				configurationNames.each { configurationName ->
+					configurations[configurationName].allDependencies.each {
+						if (it.group != null && it.name != null) {
+							def dependencyNode = dependenciesNode.appendNode('dependency')
+							dependencyNode.appendNode('groupId', it.group)
+							dependencyNode.appendNode('artifactId', it.name)
+							dependencyNode.appendNode('version', it.version)
+
+							//If there are any exclusions in dependency
+							if (it.excludeRules.size() > 0) {
+								def exclusionsNode = dependencyNode.appendNode('exclusions')
+								it.excludeRules.each { rule ->
+									def exclusionNode = exclusionsNode.appendNode('exclusion')
+									exclusionNode.appendNode('groupId', rule.group)
+									exclusionNode.appendNode('artifactId', rule.module)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	repositories {
+		maven {
+			credentials {
+				username = repoUser
+				password = repoPassword
+			}
+			if(moduleVersion.endsWith('-SNAPSHOT')) {
+				url publishSnapShotsURL
+			} else {
+				url publishReleaseURL
+			}
+		}
+	}
 }
 
