@@ -4,7 +4,7 @@ dependencies{
 	
 	compile 'org.apache.commons:commons-pool2:2.6.2'
 	compile 'org.apache.logging.log4j:log4j-api:2.11.2'
-	compile 'com.ai:ipaas-uac:0.3'
+	compile 'com.ai:ipaas-uac:1.0'
 	compile 'io.codis.jodis:jodis:0.5.1'
 }
 

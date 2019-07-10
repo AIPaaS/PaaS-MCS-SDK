@@ -15,11 +15,15 @@ import com.ai.paas.ipaas.mcs.ICacheClient;
 import com.ai.paas.ipaas.mcs.exception.CacheException;
 import com.ai.paas.util.StringUtil;
 
+import redis.clients.jedis.GeoCoordinate;
+import redis.clients.jedis.GeoRadiusResponse;
+import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisClusterException;
+import redis.clients.jedis.params.GeoRadiusParam;
 import redis.clients.jedis.params.ZAddParams;
 import redis.clients.jedis.params.ZIncrByParams;
 
@@ -1729,6 +1733,218 @@ public class CacheClusterClient implements ICacheClient {
     @Override
     public void unwatch() {
         throw new CacheException(UNSUPPORTED);
+    }
+
+    @Override
+    public Boolean setBit(String key, long offset, String value) {
+        try {
+            return jc.setbit(key, offset, value);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return setBit(key, offset, value);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public Boolean getBit(String key, long offset) {
+        try {
+            return jc.getbit(key, offset);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return getBit(key, offset);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public long countBit(String key, long start, long end) {
+        try {
+            return jc.bitcount(key, start, end);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return countBit(key, start, end);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public long countBit(String key) {
+        try {
+            return jc.bitcount(key);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return countBit(key);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public long addGeo(String key, Map<String, GeoCoordinate> memberCoordinateMap) {
+        try {
+            return jc.geoadd(key, memberCoordinateMap);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return addGeo(key, memberCoordinateMap);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public long addGeo(String key, String name, long longitude, long latitude) {
+        try {
+            return jc.geoadd(key, longitude, latitude, name);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return addGeo(key, name, longitude, latitude);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public List<GeoCoordinate> getGeo(String key, String... members) {
+        try {
+            return jc.geopos(key, members);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return getGeo(key, members);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public Double getGeoDist(String key, String start, String end) {
+        try {
+            return jc.geodist(key, start, end);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return getGeoDist(key, start, end);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public Double getGeoDist(String key, String start, String end, GeoUnit unit) {
+        try {
+            return jc.geodist(key, start, end, unit);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return getGeoDist(key, start, end, unit);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, long longitude, long latitude, long radius, GeoUnit unit) {
+        try {
+            return jc.georadius(key, longitude, latitude, radius, unit);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return getGeoDist(key, longitude, latitude, radius, unit);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, double longitude, double latitude, double radius,
+            GeoUnit unit, GeoRadiusParam param) {
+        try {
+            return jc.georadius(key, longitude, latitude, radius, unit, param);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return getGeoDist(key, longitude, latitude, radius, unit, param);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, String member, long radius, GeoUnit unit) {
+        try {
+            return jc.georadiusByMember(key, member, radius, unit);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return getGeoDist(key, member, radius, unit);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, String member, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        try {
+            return jc.georadiusByMember(key, member, radius, unit, param);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return getGeoDist(key, member, radius, unit, param);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public List<String> getGeoHash(String key, String... members) {
+        try {
+            return jc.geohash(key, members);
+        } catch (JedisClusterException jcException) {
+            getCluster();
+            if (canConnection()) {
+                return getGeoHash(key, members);
+            }
+            throw new CacheException(jcException);
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
     }
 
 }

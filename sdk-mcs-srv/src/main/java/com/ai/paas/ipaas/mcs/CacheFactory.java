@@ -8,10 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ai.paas.ipaas.ccs.inner.CCSComponentFactory;
-import com.ai.paas.ipaas.mcs.ICacheClient;
 import com.ai.paas.ipaas.mcs.impl.CacheClient;
 import com.ai.paas.ipaas.mcs.impl.CacheClusterClient;
-import com.ai.paas.ipaas.mcs.impl.CacheHelper;
 import com.ai.paas.ipaas.mcs.impl.SentinelClient;
 import com.ai.paas.ipaas.uac.service.UserClientFactory;
 import com.ai.paas.ipaas.uac.vo.AuthDescriptor;
@@ -62,7 +60,6 @@ public class CacheFactory {
         Assert.notNull(authResult.getConfigUser(), "ConfigUser为空");
         Assert.notNull(authResult.getConfigPasswd(), "ConfigPasswd为空");
         Assert.notNull(authResult.getUserId(), "UserId为空");
-        CacheHelper.setPreKey(authResult.getUserId());
         // 获取内部zk地址后取得该用户的cache配置信息，返回JSON String
         // 获取该用户申请的cache服务配置信息
         log.info("Get confBase&conf ...");
@@ -77,7 +74,7 @@ public class CacheFactory {
         Gson gson = new Gson();
         GenericObjectPoolConfig config = gson.fromJson(cacheConf, GenericObjectPoolConfig.class);
         Map personalConfMap = gson.fromJson(personalConf, Map.class);
-        log.info("Get pwd&host ..." + personalConfMap);
+        log.info("Get pwd&host ...{}" , personalConfMap);
         String pwd = null;
         pwd = (String) personalConfMap.get(REDIS_PASSWORD);
         String host = (String) personalConfMap.get(REDIS_HOST);

@@ -1,7 +1,7 @@
 dependencies {
     compile project(":sdk-mcs-base")
-    compile 'com.ai:ipaas-uac:0.3'
-    compile 'com.ai:ipaas-ccs-inner:0.3'
+    compile 'com.ai:ipaas-uac:1.0'
+    compile 'com.ai:ipaas-ccs-inner:1.0'
 }
 
 jar {

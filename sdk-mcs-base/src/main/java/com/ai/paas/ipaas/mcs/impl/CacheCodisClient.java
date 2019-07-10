@@ -15,10 +15,14 @@ import com.ai.paas.util.StringUtil;
 
 import io.codis.jodis.JedisResourcePool;
 import io.codis.jodis.RoundRobinJedisPool;
+import redis.clients.jedis.GeoCoordinate;
+import redis.clients.jedis.GeoRadiusResponse;
+import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.params.GeoRadiusParam;
 import redis.clients.jedis.params.ZAddParams;
 import redis.clients.jedis.params.ZIncrByParams;
 
@@ -85,7 +89,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -108,7 +112,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -130,7 +134,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -152,7 +156,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -174,7 +178,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -197,7 +201,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -220,7 +224,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -242,7 +246,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -264,7 +268,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -287,7 +291,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -309,7 +313,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -331,7 +335,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -353,7 +357,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -375,7 +379,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -397,7 +401,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -419,7 +423,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -441,7 +445,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -463,7 +467,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -485,7 +489,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -507,7 +511,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -529,7 +533,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -551,7 +555,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -573,7 +577,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -595,7 +599,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -617,7 +621,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -639,7 +643,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -661,7 +665,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -683,7 +687,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -705,7 +709,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -727,7 +731,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -749,7 +753,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -771,7 +775,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -793,7 +797,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -815,7 +819,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -837,7 +841,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -859,7 +863,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -881,7 +885,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -903,7 +907,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -925,7 +929,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -947,7 +951,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -969,7 +973,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -991,7 +995,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1013,7 +1017,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1035,7 +1039,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1057,7 +1061,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1080,7 +1084,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1102,7 +1106,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1124,7 +1128,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1146,7 +1150,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1168,7 +1172,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1190,7 +1194,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1212,7 +1216,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1234,7 +1238,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1256,7 +1260,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1278,7 +1282,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1300,7 +1304,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1322,7 +1326,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1344,7 +1348,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1366,7 +1370,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1388,7 +1392,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1410,7 +1414,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1433,7 +1437,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1460,7 +1464,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1482,7 +1486,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1504,7 +1508,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1526,7 +1530,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1548,7 +1552,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1570,7 +1574,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1592,7 +1596,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1614,7 +1618,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1636,7 +1640,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1658,7 +1662,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1680,7 +1684,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1702,7 +1706,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1724,7 +1728,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1746,7 +1750,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1769,7 +1773,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1792,7 +1796,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1815,7 +1819,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1838,7 +1842,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1861,7 +1865,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1884,7 +1888,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1907,7 +1911,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1930,7 +1934,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1953,7 +1957,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1976,7 +1980,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -1999,7 +2003,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2022,7 +2026,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2045,7 +2049,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2069,7 +2073,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2092,7 +2096,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2115,7 +2119,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2138,7 +2142,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2162,7 +2166,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2185,7 +2189,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2208,7 +2212,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2231,7 +2235,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2254,7 +2258,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2277,7 +2281,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2314,7 +2318,7 @@ public class CacheCodisClient implements ICacheClient {
         } catch (JedisConnectionException jedisConnectionException) {
             throw new CacheException(jedisConnectionException);
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2349,7 +2353,7 @@ public class CacheCodisClient implements ICacheClient {
             log.error(jedisConnectionException.getMessage(), jedisConnectionException);
             throw new CacheException(jedisConnectionException);
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2373,7 +2377,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2396,7 +2400,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2419,7 +2423,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2442,7 +2446,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2465,7 +2469,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2488,7 +2492,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2511,7 +2515,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2538,7 +2542,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             if (jedis != null)
@@ -2566,7 +2570,7 @@ public class CacheCodisClient implements ICacheClient {
                 throw new CacheException(jedisConnectionException);
             }
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         }
     }
@@ -2580,7 +2584,7 @@ public class CacheCodisClient implements ICacheClient {
             log.error(jedisConnectionException.getMessage(), jedisConnectionException);
             throw new CacheException(jedisConnectionException);
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             tx.close();
@@ -2597,7 +2601,7 @@ public class CacheCodisClient implements ICacheClient {
             log.error(jedisConnectionException.getMessage(), jedisConnectionException);
             throw new CacheException(jedisConnectionException);
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             tx.close();
@@ -2619,7 +2623,7 @@ public class CacheCodisClient implements ICacheClient {
             log.error(jedisConnectionException.getMessage(), jedisConnectionException);
             throw new CacheException(jedisConnectionException);
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         }
     }
@@ -2634,7 +2638,7 @@ public class CacheCodisClient implements ICacheClient {
         } catch (JedisConnectionException jedisConnectionException) {
             throw new CacheException(jedisConnectionException);
         } catch (Exception e) {
-            
+
             throw new CacheException(e);
         } finally {
             JedisContextHolder.clean();
@@ -2647,6 +2651,316 @@ public class CacheCodisClient implements ICacheClient {
             jedisPool.close();
         } catch (IOException e) {
             throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public Boolean setBit(String key, long offset, String value) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.setbit(key, offset, value);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return setBit(key, offset, value);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Boolean getBit(String key, long offset) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.getbit(key, offset);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getBit(key, offset);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public long countBit(String key, long start, long end) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.bitcount(key, start, end);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return countBit(key, start, end);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public long countBit(String key) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.bitcount(key);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return countBit(key);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public long addGeo(String key, Map<String, GeoCoordinate> memberCoordinateMap) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geoadd(key, memberCoordinateMap);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return addGeo(key, memberCoordinateMap);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public long addGeo(String key, String name, long longitude, long latitude) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geoadd(key, longitude, latitude, name);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return addGeo(key, name, longitude, latitude);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoCoordinate> getGeo(String key, String... members) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geopos(key, members);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeo(key, members);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Double getGeoDist(String key, String start, String end) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geodist(key, start, end);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, start, end);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Double getGeoDist(String key, String start, String end, GeoUnit unit) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geodist(key, start, end, unit);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, start, end, unit);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, long longitude, long latitude, long radius, GeoUnit unit) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.georadius(key, longitude, latitude, radius, unit);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, longitude, latitude, radius, unit);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, double longitude, double latitude, double radius,
+            GeoUnit unit, GeoRadiusParam param) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.georadius(key, longitude, latitude, radius, unit, param);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, longitude, latitude, radius, unit, param);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, String member, long radius, GeoUnit unit) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.georadiusByMember(key, member, radius, unit);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, member, radius, unit);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, String member, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.georadiusByMember(key, member, radius, unit, param);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, member, radius, unit, param);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<String> getGeoHash(String key, String... members) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geohash(key, members);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoHash(key, members);
+            } else {
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
         }
     }
 }

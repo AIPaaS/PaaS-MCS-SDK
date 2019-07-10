@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import redis.clients.jedis.GeoCoordinate;
+import redis.clients.jedis.GeoRadiusResponse;
+import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.Transaction;
+import redis.clients.jedis.params.GeoRadiusParam;
 import redis.clients.jedis.params.ZAddParams;
 import redis.clients.jedis.params.ZIncrByParams;
 
@@ -973,5 +977,151 @@ public interface ICacheClient {
      * 取消监控键值
      */
     public void unwatch();
+
+    /**
+     * 为指定的key值的某位设置
+     * 
+     * @param key
+     * @param offset 位数
+     * @param value  可以是 0 也可以是 1
+     * @return true表示原值为1， false表示原值为了0
+     */
+    public Boolean setBit(String key, long offset, String value);
+
+    /**
+     * 获取指定key值的某位的值
+     * 
+     * @param key
+     * @param offset
+     * @return true表示设置为1， false表示设置为了0
+     */
+    public Boolean getBit(String key, long offset);
+
+    /**
+     * 统计指定key中的指定范围内的设置为1的个数
+     * 
+     * @param key
+     * @param start
+     * @param end   -1 表示最后一个字节，
+     * @return
+     */
+    public long countBit(String key, long start, long end);
+
+    /**
+     * 统计指定key中设置为1的个数
+     * 
+     * @param key
+     * @retu
+     */
+    public long countBit(String key);
+
+    /**
+     * 增加一组地理坐标到redis
+     * 
+     * @param key
+     * @param memberCoordinateMap 地理坐标MAP，map的key是地理坐标的名字
+     * @return 增加进的地理坐标数据
+     */
+    public long addGeo(String key, Map<String, GeoCoordinate> memberCoordinateMap);
+
+    /**
+     * 增加一个地理坐标到redis
+     * 
+     * @param key
+     * @param name      坐标的名称
+     * @param longitude 经度
+     * @param latitude  纬度
+     * @return
+     */
+    public long addGeo(String key, String name, long longitude, long latitude);
+
+    /**
+     * 获取相应名称的地理坐标
+     * 
+     * @param key
+     * @param members 名称数组
+     * @return
+     */
+    public List<GeoCoordinate> getGeo(String key, String... members);
+
+    /**
+     * 返回两个节点间的距离，单位米 如果节点不存在，则返回NULL
+     * 
+     * @param key
+     * @param start 节点名字
+     * @param end
+     * @return
+     */
+    public Double getGeoDist(String key, String start, String end);
+
+    /**
+     * 返回两个节点间的距离,单位为指定单位
+     * 
+     * @param key
+     * @param start
+     * @param end
+     * @param unit
+     * @return
+     */
+    public Double getGeoDist(String key, String start, String end, GeoUnit unit);
+
+    /**
+     * 返回以某点为中心的一定范围的点
+     * 
+     * @param key
+     * @param longitude 中心点
+     * @param latitude  中心点
+     * @param radius    距离
+     * @param unit      单位
+     * @return
+     */
+    public List<GeoRadiusResponse> getGeoDist(String key, long longitude, long latitude, long radius, GeoUnit unit);
+
+    /**
+     * 返回以某点为中心的一定范围的点
+     * 
+     * @param key
+     * @param longitude
+     * @param latitude
+     * @param radius
+     * @param unit
+     * @param param     返回结果选项，如由近及远，数量，距离等
+     * @return
+     */
+    public List<GeoRadiusResponse> getGeoDist(String key, double longitude, double latitude, double radius,
+            GeoUnit unit, GeoRadiusParam param);
+
+    /**
+     * 返回某一个命名点为中心，距离radius范围的点
+     * 
+     * @param key
+     * @param member
+     * @param radius
+     * @param unit
+     * @return
+     */
+    public List<GeoRadiusResponse> getGeoDist(String key, String member, long radius, GeoUnit unit);
+
+    /**
+     * 返回某一个命名点为中心，距离radius范围的点
+     * 
+     * @param key
+     * @param member
+     * @param radius
+     * @param unit
+     * @param param
+     * @return
+     */
+    public List<GeoRadiusResponse> getGeoDist(String key, String member, double radius, GeoUnit unit,
+            GeoRadiusParam param);
+
+    /**
+     * 返回地理节点的hash值
+     * 
+     * @param key
+     * @param members
+     * @return
+     */
+    public List<String> getGeoHash(String key, String... members);
 
 }

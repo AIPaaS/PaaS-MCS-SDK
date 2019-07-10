@@ -10,11 +10,15 @@ import java.util.TreeSet;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.LoggerFactory;
 
+import redis.clients.jedis.GeoCoordinate;
+import redis.clients.jedis.GeoRadiusResponse;
+import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.JedisSentinelPool;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+import redis.clients.jedis.params.GeoRadiusParam;
 import redis.clients.jedis.params.ZAddParams;
 import redis.clients.jedis.params.ZIncrByParams;
 
@@ -2618,5 +2622,315 @@ public class SentinelClient implements ICacheClient {
                 "10.1.235.23:26379,10.1.235.22:26379,10.1.235.24:26379", "");
         client.set("dxf", "1234567");
         log.info(client.get("dxf"));
+    }
+
+    @Override
+    public Boolean setBit(String key, long offset, String value) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.setbit(key, offset, value);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return setBit(key, offset, value);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Boolean getBit(String key, long offset) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.getbit(key, offset);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getBit(key, offset);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public long countBit(String key, long start, long end) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.bitcount(key, start, end);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return countBit(key, start, end);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public long countBit(String key) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.bitcount(key);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return countBit(key);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public long addGeo(String key, Map<String, GeoCoordinate> memberCoordinateMap) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geoadd(key, memberCoordinateMap);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return addGeo(key, memberCoordinateMap);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public long addGeo(String key, String name, long longitude, long latitude) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geoadd(key, longitude, latitude, name);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return addGeo(key, name, longitude, latitude);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoCoordinate> getGeo(String key, String... members) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geopos(key, members);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeo(key, members);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Double getGeoDist(String key, String start, String end) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geodist(key, start, end);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, start, end);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Double getGeoDist(String key, String start, String end, GeoUnit unit) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geodist(key, start, end, unit);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, start, end, unit);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, long longitude, long latitude, long radius, GeoUnit unit) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.georadius(key, longitude, latitude, radius, unit);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, longitude, latitude, radius, unit);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, double longitude, double latitude, double radius,
+            GeoUnit unit, GeoRadiusParam param) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.georadius(key, longitude, latitude, radius, unit, param);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, longitude, latitude, radius, unit, param);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, String member, long radius, GeoUnit unit) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.georadiusByMember(key, member, radius, unit);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, member, radius, unit);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<GeoRadiusResponse> getGeoDist(String key, String member, double radius, GeoUnit unit,
+            GeoRadiusParam param) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.georadiusByMember(key, member, radius, unit, param);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoDist(key, member, radius, unit, param);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<String> getGeoHash(String key, String... members) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.geohash(key, members);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return getGeoHash(key, members);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
     }
 }
