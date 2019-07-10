@@ -16,7 +16,7 @@ import com.ai.paas.ipaas.uac.vo.AuthDescriptor;
 import com.ai.paas.ipaas.uac.vo.AuthResult;
 import com.ai.paas.util.Assert;
 import com.ai.paas.util.CiperUtil;
-import com.google.gson.Gson;
+import com.ai.paas.util.JsonUtil;
 
 public class CacheFactory {
 
@@ -71,9 +71,8 @@ public class CacheFactory {
                 .getConfigClient(authResult.getConfigAddr(), authResult.getConfigUser(), authResult.getConfigPasswd())
                 .get(CACHE_CONFIG_PATH + srvId);
         // 封装成配置对象
-        Gson gson = new Gson();
-        GenericObjectPoolConfig config = gson.fromJson(cacheConf, GenericObjectPoolConfig.class);
-        Map personalConfMap = gson.fromJson(personalConf, Map.class);
+        GenericObjectPoolConfig config = JsonUtil.fromJson(cacheConf, GenericObjectPoolConfig.class);
+        Map personalConfMap = JsonUtil.fromJson(personalConf, Map.class);
         log.info("Get pwd&host ...{}" , personalConfMap);
         String pwd = null;
         pwd = (String) personalConfMap.get(REDIS_PASSWORD);
