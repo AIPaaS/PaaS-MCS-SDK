@@ -2,25 +2,33 @@ package test.com.ai.paas.ipaas.mcs;
 
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ai.paas.ipaas.mcs.impl.CacheClusterClient;
 import com.ai.paas.ipaas.mcs.interfaces.ICacheClient;
 
 public class CacheClusterClientTest {
 	private static ICacheClient client = null;
-
+	private static final Logger log = LoggerFactory.getLogger(CacheClusterClientTest.class);
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-		String host = "10.1.235.24:6811,10.1.235.24:6812,10.1.235.24:6813,10.1.235.24:6814,10.1.235.24:6815,10.1.235.24:6816";
-		String[] hosts = host.split(",");
-		client = new CacheClusterClient(config, hosts,"asc123");
+		String host = "10.12.2.144:11000,10.12.2.144:11001,10.12.2.145:11000,10.12.2.145:11001,10.12.2.146:11000,10.12.2.146:11001";
+        String[] hosts = host.split(",");
+        client = new CacheClusterClient(config, hosts, "QAZ234WSx");
 	}
 
 	@AfterClass
@@ -693,5 +701,68 @@ public class CacheClusterClientTest {
 	public void testFinalize() {
 		fail("Not yet implemented");
 	}
+	
+	@Test
+    public void testBenchSet() {
+        long start = System.currentTimeMillis();
+        for (long i = 1; i < 1000; i = i + 2) {
+            client.set("mget" + i, "mget" + i);
+        }
+        log.info("insert time:{} ", System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void testBenchMget() {
+        String[] keys = null;
+        List<String> list = new ArrayList<>();
+        for (long i = 1; i < 1000; i++) {
+            list.add("mget" + i);
+        }
+        keys = list.toArray(new String[list.size()]);
+        long start = System.currentTimeMillis();
+
+        List<String> results = client.mget(keys);
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+        for (String result : results) {
+            log.info("---{}", result);
+        }
+    }
+
+    @Test
+    public void testBenchMset() {
+        Map<String, String> values = new HashMap<>();
+        for (long i = 1; i < 1000; i++) {
+            values.put("mget11" + i, "mget11aaa" + i);
+        }
+        long start = System.currentTimeMillis();
+
+        client.mset(values);
+        log.info("mset time:{} ", System.currentTimeMillis() - start);
+        log.info("---{}", client.get("mget1110"));
+    }
+
+    @Test
+    public void testBenchForget() {
+        long start = System.currentTimeMillis();
+        for (long i = 1; i < 1000; i++) {
+            client.get("mget" + i);
+        }
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void testBenchPipeGet() {
+        String[] keys = null;
+        List<String> list = new ArrayList<>();
+        for (long i = 1; i < 1000; i++) {
+            list.add("hhhh" + i);
+        }
+        keys = list.toArray(new String[list.size()]);
+        long start = System.currentTimeMillis();
+
+        List<Object> results = client.pipelineGet(keys);
+        log.info("pget time:{} ", System.currentTimeMillis() - start);
+        log.info("-----{}", results.get(0));
+    }
 
 }

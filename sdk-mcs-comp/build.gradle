@@ -49,8 +49,8 @@ publishing {
                 url publishReleaseURL
             }
 			credentials {
-				username = publishUserName
-				password = publishUserPassword
+				username = repoUser
+				password = repoPassword
 			}
 		}
 	}

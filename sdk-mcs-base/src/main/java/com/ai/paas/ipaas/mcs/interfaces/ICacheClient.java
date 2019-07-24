@@ -1049,4 +1049,34 @@ public interface ICacheClient {
 	 */
 	public void unwatch();
 	
+	/**
+     * 获取多个Keys的值，如果其中key不存在，则该key返回null 返回顺序和key顺序对应
+     * 
+     * @param keys
+     * @return
+     */
+    public List<String> mget(String... keys);
+
+    /**
+     * 设置多个值
+     * 
+     * @param values
+     */
+    public void mset(Map<String, String> values);
+
+    /**
+     * 使用pipeline获取多个key值
+     * 
+     * @param keys
+     * @return
+     */
+    public List<Object> pipelineGet(String... keys);
+
+    /**
+     * 使用pipeline设置多个key的值
+     * 
+     * @param values
+     */
+    public void pipelineSet(Map<String, String> values);
+	
 }
