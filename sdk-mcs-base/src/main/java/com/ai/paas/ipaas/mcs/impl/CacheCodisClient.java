@@ -1,6 +1,7 @@
 package com.ai.paas.ipaas.mcs.impl;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +21,7 @@ import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.jedis.params.GeoRadiusParam;
@@ -2961,6 +2963,143 @@ public class CacheCodisClient implements ICacheClient {
         } finally {
             if (jedis != null)
                 returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<String> mget(String... keys) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            return jedis.mget(keys);
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return mget(keys);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public void mset(Map<String, String> values) {
+        Assert.notNull(values);
+        Jedis jedis = null;
+        try {
+            // 先组装
+            final List<String> list = new ArrayList<>();
+            values.forEach((k, v) ->
+                {
+                    list.add(k);
+                    list.add(v);
+                });
+            jedis = getJedis();
+            jedis.mset(list.toArray(new String[list.size()]));
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                mset(values);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public List<Object> pipelineGet(String... keys) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            Pipeline pipeline = jedis.pipelined();
+            for (String key : keys) {
+                pipeline.get(key);
+            }
+            return pipeline.syncAndReturnAll();
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                return pipelineGet(keys);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public void pipelineSet(Map<String, String> values) {
+        Jedis jedis = null;
+        try {
+            jedis = getJedis();
+            Pipeline pipeline = jedis.pipelined();
+            for (Map.Entry<String, String> entry : values.entrySet()) {
+                pipeline.set(entry.getKey(), entry.getValue());
+            }
+            pipeline.sync();
+            pipeline.close();
+        } catch (JedisConnectionException jedisConnectionException) {
+            createPool();
+            if (canConnection()) {
+                pipelineSet(values);
+            } else {
+                log.error(jedisConnectionException.getMessage(), jedisConnectionException);
+                throw new CacheException(jedisConnectionException);
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            if (jedis != null)
+                returnResource(jedis);
+        }
+    }
+
+    @Override
+    public Pipeline startPipeline() {
+        Jedis jedis = null;
+        try {
+            jedis = JedisContextHolder.getJedis();
+            if (null == jedis) {
+                jedis = getJedis();
+                JedisContextHolder.setJedis(jedis);
+            }
+            // 先存下来
+            return jedis.pipelined();
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
+    }
+
+    @Override
+    public void endPipeline(Pipeline p) {
+        try {
+            if (null != p) {
+                p.close();
+            }
+        } catch (Exception e) {
+            throw new CacheException(e);
+        } finally {
+            JedisContextHolder.clean();
         }
     }
 }

@@ -15,6 +15,9 @@
         <logger name="org.spring" level="DEBUG" additivity="false">
             <appender-ref ref="Console"/>
         </logger>
+        <logger name="io.lettuce" level="INFO" additivity="false">
+            <appender-ref ref="Console"/>
+        </logger>        
         <logger name="com.zaxxer.hikari" level="warn" additivity="false">
             <appender-ref ref="Console"/>
         </logger>        

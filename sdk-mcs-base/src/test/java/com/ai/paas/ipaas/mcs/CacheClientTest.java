@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,11 +17,16 @@ import java.util.Set;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ai.paas.ipaas.mcs.impl.CacheClient;
 
+import redis.clients.jedis.Pipeline;
+
 public class CacheClientTest {
     private static ICacheClient client = null;
+    private static final Logger log = LoggerFactory.getLogger(CacheClientTest.class);
 
     @SuppressWarnings("rawtypes")
     @BeforeClass
@@ -796,4 +802,101 @@ public class CacheClientTest {
         System.out.println(System.currentTimeMillis() - start);
     }
 
+    @Test
+    public void testBenchSet() {
+        long start = System.currentTimeMillis();
+        for (long i = 1; i < 1000; i = i + 2) {
+            client.set("mget" + i, "mget" + i);
+        }
+        log.info("insert time:{} ", System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void testBenchMget() {
+        String[] keys = null;
+        List<String> list = new ArrayList<>();
+        for (long i = 1; i < 1000; i++) {
+            list.add("mget" + i);
+        }
+        keys = list.toArray(new String[list.size()]);
+        long start = System.currentTimeMillis();
+
+        List<String> results = client.mget(keys);
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+        for (String result : results) {
+            log.info("---{}", result);
+        }
+    }
+
+    @Test
+    public void testBenchMset() {
+        Map<String, String> values = new HashMap<>();
+        for (long i = 1; i < 1000; i++) {
+            values.put("mget11" + i, "mget11aaa" + i);
+        }
+        long start = System.currentTimeMillis();
+
+        client.mset(values);
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+        log.info("---{}", client.get("mget1110"));
+    }
+
+    @Test
+    public void testBenchForget() {
+        long start = System.currentTimeMillis();
+        for (long i = 1; i < 1000; i++) {
+            client.get("mget" + i);
+        }
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void testBenchPipeGet() {
+        String[] keys = null;
+        List<String> list = new ArrayList<>();
+        for (long i = 1; i < 1000; i++) {
+            list.add("mget" + i);
+        }
+        keys = list.toArray(new String[list.size()]);
+        long start = System.currentTimeMillis();
+
+        List<Object> results = client.pipelineGet(keys);
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+        for (Object result : results) {
+            log.info("---{}", result);
+        }
+    }
+
+    @Test
+    public void testBenchPSet() {
+        Map<String, String> values = new HashMap<>();
+        for (long i = 1; i < 1000; i++) {
+            values.put("mget1122" + i, "mget1133aaa" + i);
+        }
+        long start = System.currentTimeMillis();
+
+        client.pipelineSet(values);
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+        log.info("---{}", client.get("mget11222"));
+    }
+
+    @Test
+    public void testSingleGet() {
+        long start = System.currentTimeMillis();
+        String result = client.get("mget" + 1);
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+        log.info("---{}", result);
+    }
+
+    @Test
+    public void setPipeline() {
+        Pipeline p = client.startPipeline();
+        for (int i = 1; i < 1000; i++) {
+            p.set("test+++" + i, "test+++" + i);
+        }
+        p.sync();
+        client.endPipeline(p);
+        String t = client.get(("test+++1"));
+        assertTrue(t.equals("test+++1"));
+    }
 }

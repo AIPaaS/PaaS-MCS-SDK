@@ -9,6 +9,7 @@ import redis.clients.jedis.GeoCoordinate;
 import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.params.GeoRadiusParam;
 import redis.clients.jedis.params.ZAddParams;
@@ -1123,5 +1124,48 @@ public interface ICacheClient {
      * @return
      */
     public List<String> getGeoHash(String key, String... members);
+
+    /**
+     * 获取多个Keys的值，如果其中key不存在，则该key返回null 返回顺序和key顺序对应
+     * 
+     * @param keys
+     * @return
+     */
+    public List<String> mget(String... keys);
+
+    /**
+     * 设置多个值
+     * 
+     * @param values
+     */
+    public void mset(Map<String, String> values);
+
+    /**
+     * 使用pipeline获取多个key值
+     * 
+     * @param keys
+     * @return
+     */
+    public List<Object> pipelineGet(String... keys);
+
+    /**
+     * 使用pipeline设置多个key的值
+     * 
+     * @param values
+     */
+    public void pipelineSet(Map<String, String> values);
+
+    /**
+     * 获取一个pipeline，因而可以进行各种操作，但记得一定要sync,syncAndReturnAll
+     * 
+     * @return
+     */
+    public Pipeline startPipeline();
+
+    /**
+     * 结束pipeline
+     * @param p
+     */
+    public void endPipeline(Pipeline p);
 
 }

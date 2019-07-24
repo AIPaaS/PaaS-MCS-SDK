@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,19 +17,22 @@ import java.util.Set;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ai.paas.ipaas.mcs.exception.CacheException;
 import com.ai.paas.ipaas.mcs.impl.CacheClusterClient;
 
-
 public class CacheClusterClientTest {
     private static ICacheClient client = null;
+
+    private static final Logger log = LoggerFactory.getLogger(CacheClusterClientTest.class);
 
     @SuppressWarnings("rawtypes")
     @BeforeClass
     public static void setUpBeforeClass() {
         GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-        String host = "10.1.235.122:31001,10.1.235.123:31001,10.1.235.124:31001,10.1.235.122:31000,10.1.235.123:31000,10.1.235.124:31000";
+        String host = "10.12.2.144:11000,10.12.2.144:11001,10.12.2.145:11000,10.12.2.145:11001,10.12.2.146:11000,10.12.2.146:11001";
         String[] hosts = host.split(",");
         client = new CacheClusterClient(config, hosts, "QAZ234WSx");
     }
@@ -63,7 +67,7 @@ public class CacheClusterClientTest {
         assertNotEquals("123456", client.get("123"));
     }
 
-    @Test(expected=CacheException.class)
+    @Test(expected = CacheException.class)
     public void testDelStringArray() {
         client.set("123", "123456");
         client.set("dxf", "123456");
@@ -340,7 +344,7 @@ public class CacheClusterClientTest {
         client.del("set1");
     }
 
-    @Test(expected=CacheException.class)
+    @Test(expected = CacheException.class)
     public void testSdiffStringArray() {
         String[] members = { "one", "two", "three", "three" };
         client.sadd("set", members);
@@ -759,4 +763,66 @@ public class CacheClusterClientTest {
         client.del("dxf");
     }
 
+    @Test
+    public void testBenchSet() {
+        long start = System.currentTimeMillis();
+        for (long i = 1; i < 1000; i = i + 2) {
+            client.set("mget" + i, "mget" + i);
+        }
+        log.info("insert time:{} ", System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void testBenchMget() {
+        String[] keys = null;
+        List<String> list = new ArrayList<>();
+        for (long i = 1; i < 1000; i++) {
+            list.add("mget" + i);
+        }
+        keys = list.toArray(new String[list.size()]);
+        long start = System.currentTimeMillis();
+
+        List<String> results = client.mget(keys);
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+        for (String result : results) {
+            log.info("---{}", result);
+        }
+    }
+
+    @Test
+    public void testBenchMset() {
+        Map<String, String> values = new HashMap<>();
+        for (long i = 1; i < 1000; i++) {
+            values.put("mget11" + i, "mget11aaa" + i);
+        }
+        long start = System.currentTimeMillis();
+
+        client.mset(values);
+        log.info("mset time:{} ", System.currentTimeMillis() - start);
+        log.info("---{}", client.get("mget1110"));
+    }
+
+    @Test
+    public void testBenchForget() {
+        long start = System.currentTimeMillis();
+        for (long i = 1; i < 1000; i++) {
+            client.get("mget" + i);
+        }
+        log.info("mget time:{} ", System.currentTimeMillis() - start);
+    }
+
+    @Test
+    public void testBenchPipeGet() {
+        String[] keys = null;
+        List<String> list = new ArrayList<>();
+        for (long i = 1; i < 1000; i++) {
+            list.add("hhhh" + i);
+        }
+        keys = list.toArray(new String[list.size()]);
+        long start = System.currentTimeMillis();
+
+        List<Object> results = client.pipelineGet(keys);
+        log.info("pget time:{} ", System.currentTimeMillis() - start);
+        log.info("-----{}", results.get(0));
+    }
 }

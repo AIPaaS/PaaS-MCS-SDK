@@ -6,6 +6,8 @@ dependencies{
 	compile 'org.apache.logging.log4j:log4j-api:2.11.2'
 	compile 'com.ai:ipaas-uac:1.0'
 	compile 'io.codis.jodis:jodis:0.5.1'
+	// https://mvnrepository.com/artifact/io.lettuce/lettuce-core
+	compile group: 'io.lettuce', name: 'lettuce-core', version: '5.1.7.RELEASE'
 }
 
 publishing {

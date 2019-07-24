@@ -1,5 +1,7 @@
 package com.ai.paas.ipaas.mcs.impl;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -7,20 +9,36 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.slf4j.LoggerFactory;
 
+import com.ai.paas.GeneralRuntimeException;
 import com.ai.paas.ipaas.mcs.ICacheClient;
 import com.ai.paas.ipaas.mcs.exception.CacheException;
+import com.ai.paas.util.Assert;
 import com.ai.paas.util.StringUtil;
+import com.google.common.collect.Lists;
 
+import io.lettuce.core.LettuceFutures;
+import io.lettuce.core.RedisFuture;
+import io.lettuce.core.RedisURI;
+import io.lettuce.core.cluster.ClusterClientOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions;
+import io.lettuce.core.cluster.ClusterTopologyRefreshOptions.RefreshTrigger;
+import io.lettuce.core.cluster.RedisClusterClient;
+import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
+import io.lettuce.core.cluster.api.async.RedisAdvancedClusterAsyncCommands;
+import io.lettuce.core.support.ConnectionPoolSupport;
 import redis.clients.jedis.GeoCoordinate;
 import redis.clients.jedis.GeoRadiusResponse;
 import redis.clients.jedis.GeoUnit;
 import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPubSub;
+import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Transaction;
 import redis.clients.jedis.exceptions.JedisClusterException;
 import redis.clients.jedis.params.GeoRadiusParam;
@@ -36,6 +54,11 @@ public class CacheClusterClient implements ICacheClient {
     private String pwd;
     private JedisCluster jc;
     private boolean isRedisNeedAuth = false;
+    GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool = null;
+
+    StatefulRedisClusterConnection<String, String> connection = null;
+
+    RedisClusterClient clusterClient = null;
 
     private static final String UNSUPPORTED = "Unsupported Feature!";
 
@@ -78,6 +101,40 @@ public class CacheClusterClient implements ICacheClient {
             throw new CacheException(e);
         }
         log.info("-----------------------创建JedisPool------------------------end---");
+        log.info("-----------------------创建LettucePool------------------------begin---");
+        createLettuceClientPool();
+        log.info("-----------------------创建LettucePool------------------------end---");
+    }
+
+    private void createLettuceClientPool() {
+        List<RedisURI> redisURIS = new ArrayList<>();
+        for (String address : hosts) {
+            String[] ipAndPort = address.split(":");
+            if (isRedisNeedAuth)
+                redisURIS.add(
+                        RedisURI.Builder.redis(ipAndPort[0], Integer.parseInt(ipAndPort[1])).withPassword(pwd).build());
+            else
+                redisURIS.add(RedisURI.Builder.redis(ipAndPort[0], Integer.parseInt(ipAndPort[1])).build());
+        }
+        if (config.getMaxWaitMillis() < 20000)
+            config.setMaxWaitMillis(20000);
+        clusterClient = RedisClusterClient.create(redisURIS);
+        ClusterTopologyRefreshOptions topologyRefreshOptions = ClusterTopologyRefreshOptions.builder()
+                .enableAdaptiveRefreshTrigger(RefreshTrigger.MOVED_REDIRECT, RefreshTrigger.PERSISTENT_RECONNECTS)
+                .adaptiveRefreshTriggersTimeout(Duration.ofSeconds(30)).build();
+
+        clusterClient.setOptions(ClusterClientOptions.builder().topologyRefreshOptions(topologyRefreshOptions).build());
+
+        pool = ConnectionPoolSupport.createGenericObjectPool(() -> clusterClient.connect(), config);
+        connection = getLettuceCnn();
+    }
+
+    private StatefulRedisClusterConnection<String, String> getLettuceCnn() {
+        try {
+            return pool.borrowObject();
+        } catch (Exception e) {
+            throw new CacheException(e);
+        }
     }
 
     /**
@@ -1708,6 +1765,10 @@ public class CacheClusterClient implements ICacheClient {
         if (null != jc) {
             jc.close();
         }
+        if (null != pool)
+            pool.close();
+        if (null != clusterClient)
+            clusterClient.shutdown();
     }
 
     @Override
@@ -1947,4 +2008,91 @@ public class CacheClusterClient implements ICacheClient {
         }
     }
 
+    @Override
+    public List<String> mget(String... keys) {
+        List<Object> result = pipelineGet(keys);
+        List<String> list = new ArrayList<>();
+        result.forEach(e -> list.add(e.toString()));
+        return list;
+    }
+
+    @Override
+    public void mset(Map<String, String> values) {
+        Assert.notNull(values);
+        pipelineSet(values);
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public List<Object> pipelineGet(String... keys) {
+        long start = System.currentTimeMillis();
+        if (null == connection)
+            connection = getLettuceCnn();
+        log.info("get lettuce redis client connection used:{}", System.currentTimeMillis() - start);
+        RedisAdvancedClusterAsyncCommands<String, String> asyncCommands = connection.async();
+        start = System.currentTimeMillis();
+        asyncCommands.setAutoFlushCommands(false);
+        List<RedisFuture<?>> futures = Lists.newArrayList();
+        for (String key : keys) {
+            futures.add(asyncCommands.get(key));
+        }
+        asyncCommands.flushCommands();
+        RedisFuture[] results = new RedisFuture[futures.size()];
+        boolean result = LettuceFutures.awaitAll(5, TimeUnit.SECONDS, futures.toArray(results));
+        log.info("get pipe  used:{}", System.currentTimeMillis() - start);
+        if (result) {
+            try {
+                return assemble(results);
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
+        } else {
+            LettuceFutures.awaitAll(5, TimeUnit.SECONDS, futures.toArray(results));
+            try {
+                return assemble(results);
+            } catch (Exception e) {
+                throw new CacheException(e);
+            }
+        }
+
+    }
+
+    @SuppressWarnings("rawtypes")
+    private List<Object> assemble(RedisFuture[] results) throws Exception {
+        long start = System.currentTimeMillis();
+        List<Object> list = new ArrayList<>();
+        for (RedisFuture result : results) {
+            list.add(result.get());
+        }
+        log.info("assemble result used:{}", System.currentTimeMillis() - start);
+        return list;
+    }
+
+    @Override
+    public void pipelineSet(Map<String, String> values) {
+        long start = System.currentTimeMillis();
+        if (null == connection)
+            connection = getLettuceCnn();
+        log.info("get lettuce redis client connection used:{}", System.currentTimeMillis() - start);
+        RedisAdvancedClusterAsyncCommands<String, String> asyncCommands = connection.async();
+        start = System.currentTimeMillis();
+        asyncCommands.setAutoFlushCommands(false);
+        List<RedisFuture<?>> futures = Lists.newArrayList();
+        for (Map.Entry<String, String> entry : values.entrySet()) {
+            futures.add(asyncCommands.set(entry.getKey(), entry.getValue()));
+        }
+        asyncCommands.flushCommands();
+        LettuceFutures.awaitAll(5, TimeUnit.SECONDS, futures.toArray(new RedisFuture[futures.size()]));
+        log.info(" lettuce redis set  used:{}", System.currentTimeMillis() - start);
+    }
+
+    @Override
+    public Pipeline startPipeline() {
+        throw new GeneralRuntimeException("unimplemented yet!");
+    }
+
+    @Override
+    public void endPipeline(Pipeline p) {
+        throw new GeneralRuntimeException("unimplemented yet!");
+    }
 }
