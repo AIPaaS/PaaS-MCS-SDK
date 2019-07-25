@@ -2096,7 +2096,13 @@ public class CacheClusterClient implements ICacheClient {
     public List<String> mget(String... keys) {
         List<Object> result = pipelineGet(keys);
         List<String> list = new ArrayList<>();
-        result.forEach(e -> list.add(e.toString()));
+        result.forEach(e ->
+            {
+                if (null == e)
+                    list.add(null);
+                else
+                    list.add(e.toString());
+            });
         return list;
     }
 
