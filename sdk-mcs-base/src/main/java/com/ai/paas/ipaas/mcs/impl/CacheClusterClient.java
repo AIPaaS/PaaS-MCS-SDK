@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -2012,8 +2013,9 @@ public class CacheClusterClient implements ICacheClient {
     public List<String> mget(String... keys) {
         List<Object> result = pipelineGet(keys);
         List<String> list = new ArrayList<>();
-        result.forEach(e -> list.add(e.toString()));
+        result.forEach(e -> list.add(Optional.ofNullable(e).map(Object::toString).orElse(null)));
         return list;
+
     }
 
     @Override
